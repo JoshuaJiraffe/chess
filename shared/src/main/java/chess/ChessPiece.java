@@ -4,6 +4,7 @@ import chess.PieceMovers.*;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -76,9 +77,30 @@ public class ChessPiece {
             case ROOK -> new RookMoves();
             case QUEEN -> new QueenMoves();
             case KING -> new KingMoves();
-            default -> throw new RuntimeException("Piece probably doesn't exist");
+            default -> {
+                throw new RuntimeException("Piece probably doesn't exist");
+            }
         };
         return pedazito.pieceMoves(board, myPosition);
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return getValue() == that.getValue() && color == that.color && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, type, getValue());
+    }
+
+    @Override
+    public String toString() {
+        return color + " " + type;
+    }
 }
+

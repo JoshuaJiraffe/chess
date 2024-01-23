@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class ChessBoard {
     private ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
-        resetBoard();
+
     }
 
     /**
@@ -35,7 +35,7 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
 
-        return board[position.getRow()][position.getColumn()];
+        return board[position.getRow()-1][position.getColumn()-1];
     }
 
     /**
@@ -76,11 +76,16 @@ public class ChessBoard {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessBoard that = (ChessBoard) o;
-        return Arrays.equals(board, that.board);
+        return Arrays.deepEquals(board, that.board);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(board);
+        return Arrays.deepHashCode(board);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(board);
     }
 }
