@@ -1,9 +1,6 @@
 package chess.PieceMovers;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +13,15 @@ public class BishopMoves implements chess.PieceMovesCalculator{
         int r = position.getRow();
         int c = position.getColumn();
         ChessPiece me = board.getPiece(position);
+//        int [] dr = {-1, -1, 1, 1};
+//        int [] dc = {-1, 1, -1, 1};
+//        for(int i = 0; i < 4; i++)
+//            for(int j = 1; j < 8; j++)
+//            {
+//                int newr = r + dr[i]*j;
+//                int newc = r + dc[i]*j;
+//                PieceMovesCalculator.addMove(board, position, moves, newr, newc, me);
+//            }
         while(r < 8 && c < 8)
         {
             r+=1;
