@@ -16,6 +16,9 @@ public class ChessPiece {
     private final ChessGame.TeamColor color;
     private final ChessPiece.PieceType type;
     private final int value;
+    private boolean hasMoved;
+    private int numMoves;
+    private boolean enPassantable;
 
     private final Map<PieceType, Integer> pieceValues = Map.of(
         PieceType.PAWN, 1,
@@ -29,6 +32,10 @@ public class ChessPiece {
         this.color = pieceColor;
         this.type = type;
         this.value = pieceValues.get(type);
+        this.hasMoved = false;
+        this.numMoves = 0;
+        this.enPassantable = false;
+
     }
 
     /**
@@ -62,6 +69,23 @@ public class ChessPiece {
         return this.value;
     }
 
+    public boolean getMoved() { return this.hasMoved; }
+
+    public int getMoves() { return this.numMoves; }
+
+    public boolean isEnPassantable() {
+        return enPassantable;
+    }
+
+    public void setEnPassantable(boolean enPassantable) {
+        this.enPassantable = enPassantable;
+    }
+
+    public void move() {
+        this.hasMoved = true;
+        this.numMoves += 1;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -90,12 +114,12 @@ public class ChessPiece {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessPiece that = (ChessPiece) o;
-        return getValue() == that.getValue() && color == that.color && type == that.type;
+        return getValue() == that.getValue() && hasMoved == that.hasMoved && color == that.color && type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(color, type, getValue());
+        return Objects.hash(color, type, getValue(), hasMoved);
     }
 
     @Override
