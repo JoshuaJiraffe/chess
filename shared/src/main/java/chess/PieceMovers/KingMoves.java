@@ -20,7 +20,7 @@ public class KingMoves implements chess.PieceMovesCalculator{
                     continue;
                 int newr = r + dr;
                 int newc = c + dc;
-                PieceMovesCalculator.addMove(board, position, moves, newr, newc, me);
+                PieceMovesCalculator.addMoveNoBreak(board, position, moves, newr, newc, me);
             }
 
 

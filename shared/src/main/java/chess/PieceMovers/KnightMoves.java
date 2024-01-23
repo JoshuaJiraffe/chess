@@ -17,7 +17,7 @@ public class KnightMoves implements chess.PieceMovesCalculator{
         for (int i = 0; i < 8; i++) {
             int newr = r + dr[i];
             int newc = c + dc[i];
-            PieceMovesCalculator.addMove(board, position, moves, newr, newc, me);
+            PieceMovesCalculator.addMoveNoBreak(board, position, moves, newr, newc, me);
         }
 
 
