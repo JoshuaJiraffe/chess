@@ -58,11 +58,21 @@ public class ChessGame {
         else
         {
             for(ChessMove move: possibleMoves)
-            {
-
-            }
-            return realMoves;
+                if(testMove(move, bored))
+                    realMoves.add(move);
         }
+        return realMoves;
+    }
+
+    private boolean testMove(ChessMove move, ChessBoard board)
+    {
+        ChessBoard testBoard = new ChessBoard(board);
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece moving_piece = testBoard.getPiece(start);
+        testBoard.addPiece(start, null);
+        testBoard.addPiece(end, moving_piece);
+        return !isInCheck(turn);
     }
 
     /**
@@ -73,6 +83,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
         ChessPiece moving_piece;
         if(move.getPromotionPiece() == null)
            moving_piece = bored.getPiece(start);
@@ -84,10 +95,11 @@ public class ChessGame {
             throw new InvalidMoveException("That move is not valid");
         else
         {
-            turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
             bored.addPiece(start, null);
-            bored.addPiece(move.getEndPosition(), moving_piece);
-
+            bored.addPiece(end, moving_piece);
+            if(moving_piece.getPieceType() == ChessPiece.PieceType.KING)
+                bored.setkingloc(end, turn);
+            turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         }
     }
 
@@ -102,15 +114,19 @@ public class ChessGame {
         ChessPosition position;
         ChessPosition king_location = bored.getkingloc(teamColor);
         for(int r = 1; r <= 8; r++)
-            for(int c = 1; c <=8; c++)
+            for(int c = 1; c <= 8; c++)
             {
                 position = new ChessPosition(r, c);
                 piece = bored.getPiece(position);
                 if (piece != null && piece.getTeamColor() != teamColor)
                 {
-                    for(ChessMove move : validMoves(position))
-                        if(move.getEndPosition() == king_location)
+                    for(ChessMove move : piece.pieceMoves(bored, position))
+                    {
+                        if (move.getEndPosition().equals(king_location))
+                        {
                             return true;
+                        }
+                    }
                 }
             }
         return false;
@@ -141,7 +157,7 @@ public class ChessGame {
             {
                 position = new ChessPosition(r, c);
                 piece = bored.getPiece(position);
-                if(piece.getTeamColor() == teamColor)
+                if(piece != null && piece.getTeamColor() == teamColor)
                     if(!validMoves(position).isEmpty())
                         return false;
             }

@@ -22,8 +22,12 @@ public class ChessBoard{
             for(int c = 1; c <= 8; c ++)
             {
                 ChessPosition position = new ChessPosition(r, c);
-                this.addPiece(position, new ChessPiece(other.getPiece(position)));
+                ChessPiece otherPiece = other.getPiece(position);
+                if(otherPiece != null)
+                    this.addPiece(position, new ChessPiece(other.getPiece(position)));
             }
+        this.whitekingloc = other.whitekingloc;
+        this.blackkingloc = other.blackkingloc;
     }
 
     /**
@@ -35,6 +39,8 @@ public class ChessBoard{
     public void addPiece(ChessPosition position, ChessPiece piece)
     {
         board[position.getRow()-1][position.getColumn()-1] = piece;
+        if(piece != null && piece.getPieceType() == ChessPiece.PieceType.KING)
+            setkingloc(position, piece.getTeamColor());
     }
 
 
