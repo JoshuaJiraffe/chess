@@ -80,7 +80,22 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece;
+        ChessPosition position;
+        ChessPosition king_location = bored.getkingloc(teamColor);
+        for(int r = 1; r <= 8; r++)
+            for(int c = 1; c <=8; c++)
+            {
+                position = new ChessPosition(r, c);
+                piece = bored.getPiece(position);
+                if (piece != null && piece.getTeamColor() != teamColor)
+                {
+                    for(ChessMove move : validMoves(position))
+                        if(move.getEndPosition() == king_location)
+                            return true;
+                }
+            }
+        return false;
     }
 
     /**
@@ -90,7 +105,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return isInCheck(teamColor) && isInStalemate(teamColor);
     }
 
     /**
@@ -101,7 +116,18 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece;
+        ChessPosition position;
+        for(int r = 1; r <= 8; r++)
+            for(int c = 1; c <=8; c++)
+            {
+                position = new ChessPosition(r, c);
+                piece = bored.getPiece(position);
+                if(piece.getTeamColor() == teamColor)
+                    if(!validMoves(position).isEmpty())
+                        return false;
+            }
+        return true;
     }
 
     /**

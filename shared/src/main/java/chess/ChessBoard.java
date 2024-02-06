@@ -10,6 +10,8 @@ import java.util.Arrays;
  */
 public class ChessBoard {
     private ChessPiece[][] board = new ChessPiece[8][8];
+    private ChessPosition whitekingloc;
+    private ChessPosition blackkingloc;
     public ChessBoard() {
 
     }
@@ -67,9 +69,22 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
         for(int i=1; i<9; i++)
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
-
+        whitekingloc = new ChessPosition(1, 5);
+        blackkingloc = new ChessPosition(8, 5);
     }
 
+    public ChessPosition getkingloc(ChessGame.TeamColor color)
+    {
+        return (color == ChessGame.TeamColor.WHITE) ? whitekingloc : blackkingloc;
+    }
+
+    public void setkingloc(ChessPosition kingloc, ChessGame.TeamColor color)
+    {
+        if (color == ChessGame.TeamColor.WHITE)
+            whitekingloc = kingloc;
+        else
+            blackkingloc = kingloc;
+    }
 
     @Override
     public boolean equals(Object o) {
