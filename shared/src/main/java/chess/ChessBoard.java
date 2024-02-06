@@ -8,12 +8,22 @@ import java.util.Arrays;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard{
     private ChessPiece[][] board = new ChessPiece[8][8];
     private ChessPosition whitekingloc;
     private ChessPosition blackkingloc;
     public ChessBoard() {
 
+    }
+
+    public ChessBoard(ChessBoard other)
+    {
+        for(int r = 1; r <= 8; r++)
+            for(int c = 1; c <= 8; c ++)
+            {
+                ChessPosition position = new ChessPosition(r, c);
+                this.addPiece(position, new ChessPiece(other.getPiece(position)));
+            }
     }
 
     /**

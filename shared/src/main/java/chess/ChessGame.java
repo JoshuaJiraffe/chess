@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -50,11 +51,17 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = bored.getPiece(startPosition);
+        ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(bored, startPosition);
+        ArrayList<ChessMove> realMoves = new ArrayList<>();
         if (piece == null)
             return null;
         else
         {
-            return piece.pieceMoves(bored, startPosition);
+            for(ChessMove move: possibleMoves)
+            {
+
+            }
+            return realMoves;
         }
     }
 

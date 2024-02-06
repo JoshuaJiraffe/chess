@@ -38,6 +38,17 @@ public class ChessPiece {
 
     }
 
+    public ChessPiece(ChessPiece other)
+    {
+        this.color = other.color;
+        this.type = other.type;
+        this.value = pieceValues.get(type);
+        this.hasMoved = other.hasMoved;
+        this.numMoves = other.numMoves;
+        this.enPassantable = other.enPassantable;
+    }
+
+
     /**
      * The various different chess piece options
      */
