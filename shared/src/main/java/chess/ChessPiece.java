@@ -135,7 +135,7 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return color + " " + type;
+        return color.toString() + " " + type.toString();
     }
 }
 

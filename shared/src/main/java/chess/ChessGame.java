@@ -59,7 +59,9 @@ public class ChessGame {
         {
             for(ChessMove move: possibleMoves)
                 if(testMove(move, bored))
+                {
                     realMoves.add(move);
+                }
         }
         return realMoves;
     }
@@ -72,7 +74,7 @@ public class ChessGame {
         ChessPiece moving_piece = testBoard.getPiece(start);
         testBoard.addPiece(start, null);
         testBoard.addPiece(end, moving_piece);
-        return !isInCheck(turn);
+        return !inCheckHelper(moving_piece.getTeamColor(), testBoard);
     }
 
     /**
@@ -97,8 +99,9 @@ public class ChessGame {
         {
             bored.addPiece(start, null);
             bored.addPiece(end, moving_piece);
-            if(moving_piece.getPieceType() == ChessPiece.PieceType.KING)
+            if (moving_piece.getPieceType() == ChessPiece.PieceType.KING)
                 bored.setkingloc(end, turn);
+            moving_piece.move();
             turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         }
     }
@@ -110,17 +113,22 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        return inCheckHelper(teamColor, bored);
+    }
+
+    public boolean inCheckHelper(TeamColor teamColor, ChessBoard board)
+    {
         ChessPiece piece;
         ChessPosition position;
-        ChessPosition king_location = bored.getkingloc(teamColor);
+        ChessPosition king_location = board.getkingloc(teamColor);
         for(int r = 1; r <= 8; r++)
             for(int c = 1; c <= 8; c++)
             {
                 position = new ChessPosition(r, c);
-                piece = bored.getPiece(position);
+                piece = board.getPiece(position);
                 if (piece != null && piece.getTeamColor() != teamColor)
                 {
-                    for(ChessMove move : piece.pieceMoves(bored, position))
+                    for(ChessMove move : piece.pieceMoves(board, position))
                     {
                         if (move.getEndPosition().equals(king_location))
                         {
