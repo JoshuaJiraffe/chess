@@ -101,8 +101,14 @@ public class ChessGame {
             bored.addPiece(end, moving_piece);
             if (moving_piece.getPieceType() == ChessPiece.PieceType.KING)
                 bored.setkingloc(end, turn);
-            moving_piece.move();
+//            moving_piece.move();
             turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        }
+        for(int r = 1; r < 9; r ++)
+        {
+            for (int c = 1; c < 9; c++)
+                System.out.print(bored.getPiece(new ChessPosition(r, c)) + " ");
+            System.out.println();
         }
     }
 
@@ -195,7 +201,7 @@ public class ChessGame {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessGame chessGame = (ChessGame) o;
-        return turn == chessGame.turn && Objects.equals(bored, chessGame.bored);
+        return turn == chessGame.turn && getBoard().equals(chessGame.getBoard());
     }
 
     @Override
