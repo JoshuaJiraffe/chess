@@ -97,11 +97,18 @@ public class ChessGame {
             throw new InvalidMoveException("That move is not valid");
         else
         {
+            if(move.getClass() == EnPassantMove.class)
+                makeEnPassMove(move, start, end, moving_piece);
+            else if (move.getClass() == CastlingMove.class)
+                Castle();
             bored.addPiece(start, null);
             bored.addPiece(end, moving_piece);
-            if (moving_piece.getPieceType() == ChessPiece.PieceType.KING)
-                bored.setkingloc(end, turn);
-//            moving_piece.move();
+            int rowdif = Math.abs(start.getRow() - end.getRow());
+            if (moving_piece.getPieceType() == ChessPiece.PieceType.PAWN && rowdif == 2)
+                bored.setEnPassantableLocation(end);
+            else
+                bored.setEnPassantableLocation(null);
+            moving_piece.move();
             turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         }
         for(int r = 1; r < 9; r ++)
@@ -110,6 +117,23 @@ public class ChessGame {
                 System.out.print(bored.getPiece(new ChessPosition(r, c)) + " ");
             System.out.println();
         }
+    }
+
+    public void makeEnPassMove(ChessMove move, ChessPosition start, ChessPosition end, ChessPiece moving_piece)
+    {
+        EnPassantMove passantMove = (EnPassantMove) move;
+        ChessPosition killPosition;
+        bored.addPiece(end, moving_piece);
+        if(passantMove.getMoveDirection() == EnPassantMove.Direction.LEFT)
+            killPosition = new ChessPosition(start.getRow(), start.getColumn() - 1);
+        else
+            killPosition = new ChessPosition(start.getRow(), start.getColumn() + 1);
+        bored.addPiece(killPosition, null);
+    }
+
+    public void Castle()
+    {
+
     }
 
     /**

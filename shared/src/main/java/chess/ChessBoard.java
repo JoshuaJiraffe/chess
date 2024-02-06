@@ -12,6 +12,7 @@ public class ChessBoard{
     private ChessPiece[][] board = new ChessPiece[8][8];
     private ChessPosition whitekingloc;
     private ChessPosition blackkingloc;
+    private ChessPosition enPassantableLocation;
     public ChessBoard() {
 
     }
@@ -100,6 +101,16 @@ public class ChessBoard{
             whitekingloc = kingloc;
         else
             blackkingloc = kingloc;
+    }
+
+    public ChessPosition getEnPassantableLocation()
+    {
+        return enPassantableLocation;
+    }
+
+    public void setEnPassantableLocation(ChessPosition enPassantableLocation)
+    {
+        this.enPassantableLocation = enPassantableLocation;
     }
 
     @Override

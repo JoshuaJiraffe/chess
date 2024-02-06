@@ -125,12 +125,12 @@ public class ChessPiece {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessPiece that = (ChessPiece) o;
-        return getValue() == that.getValue() && hasMoved == that.hasMoved && color == that.color && type == that.type;
+        return getValue() == that.getValue() && color == that.color && type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(color, type, getValue(), hasMoved);
+        return Objects.hash(color, type, getValue());
     }
 
     @Override
