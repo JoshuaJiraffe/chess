@@ -57,10 +57,11 @@ public class ChessGame {
         System.out.println("possible moves are:" + possibleMoves);
         ArrayList<ChessMove> realMoves = new ArrayList<>();
         for(ChessMove move: possibleMoves)
-            if(move.getClass() == EnPassantMove.class || testMove(move, bored))
+            if(move.isPassantMove() || testMove(move, bored))
             {
                 realMoves.add(move);
             }
+        System.out.println("real moves are: " + realMoves);
         return realMoves;
     }
 
@@ -70,9 +71,41 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece moving_piece = testBoard.getPiece(start);
-        testBoard.addPiece(start, null);
-        testBoard.addPiece(end, moving_piece);
-        return !inCheckHelper(moving_piece.getTeamColor(), testBoard);
+        if(move.isCastleMove())
+        {
+            System.out.println("yay");
+            ChessPosition test;
+            int homerow = (moving_piece.getTeamColor() == TeamColor.WHITE) ? 1 : 8;
+            if(end.getColumn() == 7)
+            {
+                for(int i = 5; i <= 7; i++)
+                {
+                    test = new ChessPosition(homerow, i);
+                    testBoard.addPiece(start, null);
+                    testBoard.addPiece(test, moving_piece);
+                    if(inCheckHelper(moving_piece.getTeamColor(), testBoard))
+                        return false;
+                }
+            }
+            if(end.getColumn() == 3)
+            {
+                for(int i = 5; i >= 3; i--)
+                {
+                    test = new ChessPosition(homerow, i);
+                    testBoard.addPiece(start, null);
+                    testBoard.addPiece(test, moving_piece);
+                    if(inCheckHelper(moving_piece.getTeamColor(), testBoard))
+                        return false;
+                }
+            }
+            return true;
+        }
+        else
+        {
+            testBoard.addPiece(start, null);
+            testBoard.addPiece(end, moving_piece);
+            return !inCheckHelper(moving_piece.getTeamColor(), testBoard);
+        }
     }
 
     /**
@@ -106,19 +139,17 @@ public class ChessGame {
             if(move.isPassantMove())
                 makeEnPassMove(start, end, moving_piece);
             else if (move.isCastleMove())
-                Castle();
+                Castle(start, end, moving_piece);
             else
             {
                 bored.addPiece(start, null);
                 bored.addPiece(end, moving_piece);
             }
             int rowdif = Math.abs(start.getRow() - end.getRow());
-            System.out.println(rowdif);
             if (moving_piece.getPieceType() == ChessPiece.PieceType.PAWN && rowdif == 2)
                 bored.setEnPassantableLocation(end);
             else
                 bored.setEnPassantableLocation(null);
-            System.out.println(getBoard().getEnPassantableLocation());
 
             moving_piece.move();
             turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
@@ -142,9 +173,26 @@ public class ChessGame {
         bored.addPiece(killPosition, null);
     }
 
-    public void Castle()
+    public void Castle(ChessPosition start, ChessPosition end, ChessPiece moving_piece)
     {
-
+        ChessPosition rookStart, rookEnd;
+        ChessPiece rook;
+        if(end.getColumn() == 7)
+        {
+            rookStart = new ChessPosition(start.getRow(), 8);
+            rook = bored.getPiece(rookStart);
+            rookEnd = new ChessPosition(start.getRow(), 6);
+        }
+        else
+        {
+            rookStart = new ChessPosition(start.getRow(), 1);
+            rook = bored.getPiece(rookStart);
+            rookEnd = new ChessPosition(start.getRow(), 4);
+        }
+        bored.addPiece(start, null);
+        bored.addPiece(rookStart, null);
+        bored.addPiece(end, moving_piece);
+        bored.addPiece(rookEnd, rook);
     }
 
     /**
