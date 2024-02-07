@@ -54,13 +54,21 @@ public class PawnMoves implements chess.PieceMovesCalculator{
             {
                 ChessPosition left = new ChessPosition(r, c - 1);
                 if (left.equals(board.getEnPassantableLocation()))
-                    moves.add(new EnPassantMove(position, new ChessPosition(r+dir, c-1)));
+                {
+                    ChessMove passant = new ChessMove(position, new ChessPosition(r + dir, c - 1), null);
+                    passant.isPassantMove();
+                    moves.add(passant);
+                }
             }
             if (c < 8)
             {
                 ChessPosition right = new ChessPosition(r, c+1);
                 if (right.equals(board.getEnPassantableLocation()))
-                    moves.add(new EnPassantMove(position, new ChessPosition(r+dir, c+1)));
+                {
+                    ChessMove passant = new ChessMove(position, new ChessPosition(r + dir, c + 1), null);
+                    passant.isPassantMove();
+                    moves.add(passant);
+                }
             }
         }
         for(int cc: capc)

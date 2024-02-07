@@ -13,11 +13,15 @@ public class ChessMove {
     private final ChessPosition start;
     private final ChessPosition end;
     private final ChessPiece.PieceType promo;
+    private boolean isPassantMove;
+    private boolean isCastleMove;
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         start = startPosition;
         end = endPosition;
         promo = promotionPiece;
+        isPassantMove = false;
+        isCastleMove = false;
     }
 
     /**
@@ -44,11 +48,40 @@ public class ChessMove {
         return promo;
     }
 
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        ChessMove chessMove = (ChessMove) o;
+//        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promo == chessMove.promo;
+//    }
+
+
+    public boolean isPassantMove()
+    {
+        return isPassantMove;
+    }
+
+    public void setPassantMove()
+    {
+        isPassantMove = true;
+    }
+
+    public boolean isCastleMove()
+    {
+        return isCastleMove;
+    }
+
+    public void setCastleMove()
+    {
+        isCastleMove = true;
+    }
+
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessMove chessMove = (ChessMove) o;
+        if (!(o instanceof ChessMove chessMove)) return false;
         return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promo == chessMove.promo;
     }
 

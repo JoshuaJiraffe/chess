@@ -27,8 +27,12 @@ public class ChessBoard{
                 if(otherPiece != null)
                     this.addPiece(position, new ChessPiece(other.getPiece(position)));
             }
-        this.whitekingloc = other.whitekingloc;
-        this.blackkingloc = other.blackkingloc;
+        if(other.getkingloc(ChessGame.TeamColor.WHITE) != null)
+            this.whitekingloc = new ChessPosition(other.getkingloc(ChessGame.TeamColor.WHITE));
+        if(other.getkingloc(ChessGame.TeamColor.BLACK) != null)
+            this.blackkingloc = new ChessPosition(other.getkingloc(ChessGame.TeamColor.BLACK));
+        if(other.getEnPassantableLocation() != null)
+            this.enPassantableLocation = new ChessPosition(other.getEnPassantableLocation());
     }
 
     /**
@@ -88,6 +92,7 @@ public class ChessBoard{
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         whitekingloc = new ChessPosition(1, 5);
         blackkingloc = new ChessPosition(8, 5);
+        enPassantableLocation = null;
     }
 
     public ChessPosition getkingloc(ChessGame.TeamColor color)

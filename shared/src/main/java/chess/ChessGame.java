@@ -51,18 +51,16 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = bored.getPiece(startPosition);
-        ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(bored, startPosition);
-        ArrayList<ChessMove> realMoves = new ArrayList<>();
         if (piece == null)
             return null;
-        else
-        {
-            for(ChessMove move: possibleMoves)
-                if(testMove(move, bored))
-                {
-                    realMoves.add(move);
-                }
-        }
+        ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(bored, startPosition);
+        System.out.println("possible moves are:" + possibleMoves);
+        ArrayList<ChessMove> realMoves = new ArrayList<>();
+        for(ChessMove move: possibleMoves)
+            if(move.getClass() == EnPassantMove.class || testMove(move, bored))
+            {
+                realMoves.add(move);
+            }
         return realMoves;
     }
 
@@ -91,26 +89,42 @@ public class ChessGame {
            moving_piece = bored.getPiece(start);
         else
             moving_piece = new ChessPiece(turn, move.getPromotionPiece());
+
+//        Error Handling
         if(moving_piece.getTeamColor() != turn)
             throw new InvalidMoveException("It's not " + moving_piece.getTeamColor().toString().toLowerCase() + "'s turn!");
         if(!validMoves(start).contains(move))
             throw new InvalidMoveException("That move is not valid");
+
+//        Movement Handling
         else
         {
-            if(move.getClass() == EnPassantMove.class)
-                makeEnPassMove(move, start, end, moving_piece);
-            else if (move.getClass() == CastlingMove.class)
+            if(moving_piece.getPieceType() == ChessPiece.PieceType.PAWN && start.getColumn() != end.getColumn() && bored.getPiece(end) == null)
+                move.setPassantMove();
+            else if(moving_piece.getPieceType() == ChessPiece.PieceType.KING && Math.abs(start.getColumn() - end.getColumn()) == 2)
+                move.setCastleMove();
+            if(move.isPassantMove())
+                makeEnPassMove(start, end, moving_piece);
+            else if (move.isCastleMove())
                 Castle();
-            bored.addPiece(start, null);
-            bored.addPiece(end, moving_piece);
+            else
+            {
+                bored.addPiece(start, null);
+                bored.addPiece(end, moving_piece);
+            }
             int rowdif = Math.abs(start.getRow() - end.getRow());
+            System.out.println(rowdif);
             if (moving_piece.getPieceType() == ChessPiece.PieceType.PAWN && rowdif == 2)
                 bored.setEnPassantableLocation(end);
             else
                 bored.setEnPassantableLocation(null);
+            System.out.println(getBoard().getEnPassantableLocation());
+
             moving_piece.move();
             turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         }
+
+
         for(int r = 1; r < 9; r ++)
         {
             for (int c = 1; c < 9; c++)
@@ -119,15 +133,12 @@ public class ChessGame {
         }
     }
 
-    public void makeEnPassMove(ChessMove move, ChessPosition start, ChessPosition end, ChessPiece moving_piece)
+    public void makeEnPassMove(ChessPosition start, ChessPosition end, ChessPiece moving_piece)
     {
-        EnPassantMove passantMove = (EnPassantMove) move;
-        ChessPosition killPosition;
+        ChessPosition killPosition = new ChessPosition(start.getRow(), end.getColumn());
         bored.addPiece(end, moving_piece);
-        if(passantMove.getMoveDirection() == EnPassantMove.Direction.LEFT)
-            killPosition = new ChessPosition(start.getRow(), start.getColumn() - 1);
-        else
-            killPosition = new ChessPosition(start.getRow(), start.getColumn() + 1);
+        System.out.println("kill position is " + killPosition);
+        bored.addPiece(start, null);
         bored.addPiece(killPosition, null);
     }
 

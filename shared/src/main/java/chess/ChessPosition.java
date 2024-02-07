@@ -31,6 +31,13 @@ public class ChessPosition {
         this.not = colNot.get(col);
     }
 
+    public ChessPosition(ChessPosition other)
+    {
+        this.row = other.row;
+        this.col = other.col;
+        this.not = other.not;
+    }
+
     /**
      * @return which row this position is in
      * 1 codes for the bottom row
