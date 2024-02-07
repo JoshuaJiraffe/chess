@@ -54,14 +54,12 @@ public class ChessGame {
         if (piece == null)
             return null;
         ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(bored, startPosition);
-        System.out.println("possible moves are:" + possibleMoves);
         ArrayList<ChessMove> realMoves = new ArrayList<>();
         for(ChessMove move: possibleMoves)
             if(move.isPassantMove() || testMove(move, bored))
             {
                 realMoves.add(move);
             }
-        System.out.println("real moves are: " + realMoves);
         return realMoves;
     }
 
@@ -73,7 +71,6 @@ public class ChessGame {
         ChessPiece moving_piece = testBoard.getPiece(start);
         if(move.isCastleMove())
         {
-            System.out.println("yay");
             ChessPosition test;
             int homerow = (moving_piece.getTeamColor() == TeamColor.WHITE) ? 1 : 8;
             if(end.getColumn() == 7)
@@ -154,21 +151,12 @@ public class ChessGame {
             moving_piece.move();
             turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         }
-
-
-        for(int r = 1; r < 9; r ++)
-        {
-            for (int c = 1; c < 9; c++)
-                System.out.print(bored.getPiece(new ChessPosition(r, c)) + " ");
-            System.out.println();
-        }
     }
 
     public void makeEnPassMove(ChessPosition start, ChessPosition end, ChessPiece moving_piece)
     {
         ChessPosition killPosition = new ChessPosition(start.getRow(), end.getColumn());
         bored.addPiece(end, moving_piece);
-        System.out.println("kill position is " + killPosition);
         bored.addPiece(start, null);
         bored.addPiece(killPosition, null);
     }
