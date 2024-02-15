@@ -134,9 +134,9 @@ public class ChessGame {
             else if(moving_piece.getPieceType() == ChessPiece.PieceType.KING && Math.abs(start.getColumn() - end.getColumn()) == 2)
                 move.setCastleMove();
             if(move.isPassantMove())
-                makeEnPassMove(start, end, moving_piece);
+                EnPassant.makeEnPassMove(start, end, moving_piece, bored);
             else if (move.isCastleMove())
-                Castle(start, end, moving_piece);
+                Castle.Castle(start, end, moving_piece, bored);
             else
             {
                 bored.addPiece(start, null);
@@ -151,36 +151,6 @@ public class ChessGame {
             moving_piece.move();
             turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         }
-    }
-
-    public void makeEnPassMove(ChessPosition start, ChessPosition end, ChessPiece moving_piece)
-    {
-        ChessPosition killPosition = new ChessPosition(start.getRow(), end.getColumn());
-        bored.addPiece(end, moving_piece);
-        bored.addPiece(start, null);
-        bored.addPiece(killPosition, null);
-    }
-
-    public void Castle(ChessPosition start, ChessPosition end, ChessPiece moving_piece)
-    {
-        ChessPosition rookStart, rookEnd;
-        ChessPiece rook;
-        if(end.getColumn() == 7)
-        {
-            rookStart = new ChessPosition(start.getRow(), 8);
-            rook = bored.getPiece(rookStart);
-            rookEnd = new ChessPosition(start.getRow(), 6);
-        }
-        else
-        {
-            rookStart = new ChessPosition(start.getRow(), 1);
-            rook = bored.getPiece(rookStart);
-            rookEnd = new ChessPosition(start.getRow(), 4);
-        }
-        bored.addPiece(start, null);
-        bored.addPiece(rookStart, null);
-        bored.addPiece(end, moving_piece);
-        bored.addPiece(rookEnd, rook);
     }
 
     /**
