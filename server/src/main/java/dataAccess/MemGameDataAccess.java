@@ -3,13 +3,16 @@ package dataAccess;
 import model.GameData;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MemGameDataAccess implements GameDataAccess
 {
+    private Set<GameData> games = new HashSet<>();
     @Override
     public void clear() throws DataAccessException
     {
-
+        games.clear();
     }
 
     @Override
@@ -40,5 +43,11 @@ public class MemGameDataAccess implements GameDataAccess
     public boolean deleteGame(int gameID) throws DataAccessException
     {
         return false;
+    }
+
+    @Override
+    public int getSize() throws DataAccessException
+    {
+        return games.size();
     }
 }

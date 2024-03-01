@@ -12,4 +12,5 @@ public interface GameDataAccess
     boolean updateGame(int gameID, GameData game) throws DataAccessException;
     boolean joinGame(String username, String playerColor, int gameID) throws DataAccessException;
     boolean deleteGame(int gameID) throws DataAccessException;
+    int getSize() throws DataAccessException;
 }

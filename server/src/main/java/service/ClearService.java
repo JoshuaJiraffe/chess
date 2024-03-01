@@ -5,6 +5,9 @@ import dataAccess.DataAccessException;
 import dataAccess.GameDataAccess;
 import dataAccess.UserDataAccess;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ClearService
 {
     private final UserDataAccess userAccess;
@@ -16,6 +19,14 @@ public class ClearService
         this.userAccess = userAccess;
         this.gameAccess = gameAccess;
         this.authAccess = authAccess;
+    }
+    public Map<String, Integer> getDataSizes() throws DataAccessException
+    {
+        Map<String, Integer> sizes = new HashMap<>();
+        sizes.put("Users", userAccess.getSize());
+        sizes.put("Games", gameAccess.getSize());
+        sizes.put("Auths", authAccess.getSize());
+        return sizes;
     }
 
     public void clear() throws DataAccessException
