@@ -2,57 +2,89 @@ package serviceTests;
 
 import dataAccess.DataAccessException;
 import dataAccess.MemAuthDataAccess;
-import dataAccess.MemGameDataAccess;
 import dataAccess.MemUserDataAccess;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.GameService;
 import service.UserService;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTests
 {
     UserService userService;
     MemUserDataAccess userDAO;
     MemAuthDataAccess authDAO;
+    UserData user1;
+    AuthData token;
     @BeforeEach
     public void setUp() throws DataAccessException
     {
         userDAO = new MemUserDataAccess();
         authDAO = new MemAuthDataAccess();
         userService = new UserService(userDAO, authDAO);
+        user1 = new UserData("name", "pass", "abdf@gmail.com");
+        token = userService.register(user1);
     }
 
     @Test
     void registerSuccess() throws DataAccessException
     {
-        UserData user = new UserData("name", "pass", "abdf@gmail.com");
-        AuthData token = userService.register(user);
-//        UserData actual = userService.
-
+        assertEquals(token, authDAO.getAuth(token.authToken()));
+        assertTrue(userDAO.verifyUser("name", "pass"));
     }
     @Test
-    void registerFail() throws DataAccessException
+    void registerFailSameEmail() throws DataAccessException
     {
+        UserData user2 = new UserData("name2", "pass2", "abdf@gmail.com");
+        assertThrows(DataAccessException.class, () -> {
+            userService.register(user2);
+        });
+    }
+    @Test
+    void registerFailSameUser() throws DataAccessException
+    {
+        UserData user2 = new UserData("name", "pass2", "abdef@gmail.com");
+        assertThrows(DataAccessException.class, () -> {
+            userService.register(user2);
+        });
     }
 
     @Test
     void loginSuccess() throws DataAccessException
     {
+        AuthData realToken = userService.login("name", "pass");
+        assertTrue(authDAO.listAuths().contains(realToken));
     }
     @Test
-    void loginFail() throws DataAccessException
+    void loginFailWrongPass() throws DataAccessException
     {
+        assertThrows(DataAccessException.class, () -> {
+            userService.login("name", "password");
+        });
+    }
+    @Test
+    void loginFailWrongUser() throws DataAccessException
+    {
+        assertThrows(DataAccessException.class, () -> {
+            userService.login("username", "password");
+        });
     }
 
     @Test
     void logoutSuccess() throws DataAccessException
     {
+        AuthData realToken = userService.login("name", "pass");
+        userService.logout(realToken.authToken());
+        assertFalse(authDAO.listAuths().contains(realToken));
     }
 
     @Test
     void logoutFail() throws DataAccessException
     {
+        assertThrows(DataAccessException.class, () -> {
+            userService.logout("thisissuchafakeauthtoken");
+        });
     }
 }
