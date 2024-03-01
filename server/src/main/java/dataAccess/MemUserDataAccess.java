@@ -22,9 +22,9 @@ public class MemUserDataAccess implements UserDataAccess
         for (UserData existingUser: users)
         {
             if(existingUser.email() == user.email())
-                throw new DataAccessException("Error: There is already a user with this email");
+                throw new DataAccessException("Error: already taken", 403);
             if (existingUser.username() == user.username())
-                throw new DataAccessException("Error: Username taken");
+                throw new DataAccessException("Error: already taken", 403);
         }
         users.add(user);
         return user;
@@ -36,7 +36,7 @@ public class MemUserDataAccess implements UserDataAccess
         for(UserData existingUser: users)
             if(existingUser.username() == username)
                 return existingUser;
-        throw new DataAccessException("There exists no user with that username");
+        throw new DataAccessException("Error: bad request", 400);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class MemUserDataAccess implements UserDataAccess
                 return false;
             }
         }
-        throw new DataAccessException("There exists no user with that username");
+        throw new DataAccessException("Error: bad request", 400);
     }
 
     @Override

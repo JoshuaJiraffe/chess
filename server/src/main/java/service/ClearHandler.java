@@ -16,10 +16,10 @@ public class ClearHandler
         gson = new Gson();
     }
 
-    public String clear(Request req, Response res) throws DataAccessException
+    public Object clear(Request req, Response res) throws DataAccessException
     {
         clearService.clear();
         res.status(200);
-        return gson.toJson("{}");
+        return "{}";
     }
 }

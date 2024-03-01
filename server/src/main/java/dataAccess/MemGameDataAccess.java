@@ -24,7 +24,7 @@ public class MemGameDataAccess implements GameDataAccess
         for (GameData existingGame: games)
         {
             if(existingGame.gameName() == gameName)
-                throw new DataAccessException("Error: There is already a game with this name");
+                throw new DataAccessException("Error: bad request", 400);
         }
         GameData game = new GameData(nextID, null, null, gameName, new ChessGame());
         nextID += ((int)(Math.random()*9) + 1);
@@ -48,7 +48,7 @@ public class MemGameDataAccess implements GameDataAccess
                 return true;
             }
         }
-        throw new DataAccessException("Error: There is no game with that ID");
+        throw new DataAccessException("Error: bad request", 400);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class MemGameDataAccess implements GameDataAccess
                             newData = new GameData(existingGame.gameID(), username, existingGame.blackUsername(), existingGame.gameName(), existingGame.game());
                         }
                         else
-                            throw new DataAccessException("Error: already taken");
+                            throw new DataAccessException("Error: already taken", 403);
                     }
                     else if(playerColor == ChessGame.TeamColor.BLACK)
                     {
@@ -79,7 +79,7 @@ public class MemGameDataAccess implements GameDataAccess
                             newData = new GameData(existingGame.gameID(), existingGame.whiteUsername(), username, existingGame.gameName(), existingGame.game());
                         }
                         else
-                            throw new DataAccessException("Error: already taken");
+                            throw new DataAccessException("Error: already taken", 403);
                     }
                     if(newData != null)
                     {
@@ -88,12 +88,12 @@ public class MemGameDataAccess implements GameDataAccess
                         return newData;
                     }
                     else
-                        throw new DataAccessException("Error: Something really wonky happened");
+                        throw new DataAccessException("Error: Something really wonky happened", 500);
                 }
 
             }
         }
-        throw new DataAccessException("Error: There is no game with that ID");
+        throw new DataAccessException("Error: bad request", 400);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class MemGameDataAccess implements GameDataAccess
                 return games.remove(deadGame);
             }
         }
-        throw new DataAccessException("Error: There is no game with that ID");
+        throw new DataAccessException("Error: bad request", 400);
     }
 
     @Override

@@ -18,7 +18,6 @@ public class ChessPiece {
     private final int value;
     private boolean hasMoved;
     private int numMoves;
-    private boolean enPassantable;
 
     private final Map<PieceType, Integer> pieceValues = Map.of(
         PieceType.PAWN, 1,
@@ -34,7 +33,6 @@ public class ChessPiece {
         this.value = pieceValues.get(type);
         this.hasMoved = false;
         this.numMoves = 0;
-        this.enPassantable = false;
 
     }
 
@@ -45,7 +43,6 @@ public class ChessPiece {
         this.value = pieceValues.get(type);
         this.hasMoved = other.hasMoved;
         this.numMoves = other.numMoves;
-        this.enPassantable = other.enPassantable;
     }
 
 
@@ -83,14 +80,6 @@ public class ChessPiece {
     public boolean getMoved() { return this.hasMoved; }
 
     public int getMoves() { return this.numMoves; }
-
-    public boolean isEnPassantable() {
-        return enPassantable;
-    }
-
-    public void setEnPassantable(boolean enPassantable) {
-        this.enPassantable = enPassantable;
-    }
 
     public void move() {
         this.hasMoved = true;

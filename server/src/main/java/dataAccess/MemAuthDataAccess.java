@@ -32,7 +32,7 @@ public class MemAuthDataAccess implements AuthDataAccess
         for(AuthData existingAuth : auths)
             if(existingAuth.authToken() == authToken)
                 return existingAuth;
-        throw new DataAccessException("Error: This auth token is not valid");
+        throw new DataAccessException("Error: unauthorized", 401);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class MemAuthDataAccess implements AuthDataAccess
                 auths.remove(deadAuth);
                 return true;
             }
-        throw new DataAccessException("Error: This auth token does not exist");
+        throw new DataAccessException("Error: bad request", 400);
     }
 
     @Override

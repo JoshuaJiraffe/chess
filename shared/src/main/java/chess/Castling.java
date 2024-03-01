@@ -1,8 +1,8 @@
 package chess;
 
-public class Castle
+public class Castling
 {
-    public static void Castle(ChessPosition start, ChessPosition end, ChessPiece moving_piece, ChessBoard bored)
+    public static void castle(ChessPosition start, ChessPosition end, ChessPiece movingPiece, ChessBoard bored)
     {
         ChessPosition rookStart, rookEnd;
         ChessPiece rook;
@@ -20,7 +20,7 @@ public class Castle
         }
         bored.addPiece(start, null);
         bored.addPiece(rookStart, null);
-        bored.addPiece(end, moving_piece);
+        bored.addPiece(end, movingPiece);
         bored.addPiece(rookEnd, rook);
     }
 }

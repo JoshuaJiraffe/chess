@@ -25,7 +25,7 @@ public class UserService
     {
         if(userAccess.verifyUser(username, password))
             return authAccess.createAuth(userAccess.getUser(username));
-        throw new DataAccessException("Error: Invalid Password");
+        throw new DataAccessException("Error: unauthorized", 401);
     }
 
     public boolean logout(String authToken) throws DataAccessException
