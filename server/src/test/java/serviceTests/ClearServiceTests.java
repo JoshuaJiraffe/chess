@@ -1,21 +1,28 @@
-package service;
+package serviceTests;
 
 import dataAccess.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.ClearService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClearTests
+class ClearServiceTests
 {
     ClearService clearService;
+    MemGameDataAccess gameDAO;
+    MemUserDataAccess userDAO;
+    MemAuthDataAccess authDAO;
     @BeforeEach
-    public void setUp() throws DataAccessException
+    void setUp() throws DataAccessException
     {
-        clearService = new ClearService(new MemUserDataAccess(), new MemGameDataAccess(), new MemAuthDataAccess());
+        gameDAO = new MemGameDataAccess();
+        authDAO = new MemAuthDataAccess();
+        userDAO = new MemUserDataAccess();
+        clearService = new ClearService(userDAO, gameDAO, authDAO);
 
     }
 

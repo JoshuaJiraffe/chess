@@ -2,7 +2,6 @@ package service;
 
 import dataAccess.AuthDataAccess;
 import dataAccess.DataAccessException;
-import dataAccess.GameDataAccess;
 import dataAccess.UserDataAccess;
 import model.AuthData;
 import model.UserData;
