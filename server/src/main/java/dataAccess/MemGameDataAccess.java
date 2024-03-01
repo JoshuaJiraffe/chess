@@ -1,6 +1,8 @@
 package dataAccess;
 
+import chess.ChessGame;
 import model.GameData;
+import model.UserData;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,6 +10,7 @@ import java.util.Set;
 
 public class MemGameDataAccess implements GameDataAccess
 {
+    private int nextID = 101;
     private Set<GameData> games = new HashSet<>();
     @Override
     public void clear() throws DataAccessException
@@ -16,33 +19,94 @@ public class MemGameDataAccess implements GameDataAccess
     }
 
     @Override
-    public GameData createGame(GameData game) throws DataAccessException
+    public GameData createGame(String gameName) throws DataAccessException
     {
-        return null;
+        for (GameData existingGame: games)
+        {
+            if(existingGame.gameName() == gameName)
+                throw new DataAccessException("Error: There is already a game with this name");
+        }
+        GameData game = new GameData(nextID, null, null, gameName, new ChessGame());
+        nextID += ((int)(Math.random()*9) + 1);
+        games.add(game);
+        return game;
     }
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException
     {
-        return null;
+        return games;
     }
 
     @Override
-    public boolean updateGame(int gameID, GameData game) throws DataAccessException
+    public boolean updateGame(int gameID, ChessGame game) throws DataAccessException
     {
-        return false;
+        for (GameData existingGame: games)
+        {
+            if(existingGame.gameID() == gameID)
+            {
+                return true;
+            }
+        }
+        throw new DataAccessException("Error: There is no game with that ID");
     }
 
     @Override
-    public boolean joinGame(String username, String playerColor, int gameID) throws DataAccessException
+    public GameData joinGame(String username, ChessGame.TeamColor playerColor, int gameID) throws DataAccessException
     {
-        return false;
+        for (GameData existingGame: games)
+        {
+            if(existingGame.gameID() == gameID)
+            {
+                if(playerColor == null)
+                    return existingGame;
+                else
+                {
+                    GameData newData = null;
+                    if(playerColor == ChessGame.TeamColor.WHITE)
+                    {
+                        if(existingGame.whiteUsername() == null)
+                        {
+                            newData = new GameData(existingGame.gameID(), username, existingGame.blackUsername(), existingGame.gameName(), existingGame.game());
+                        }
+                        else
+                            throw new DataAccessException("Error: already taken");
+                    }
+                    else if(playerColor == ChessGame.TeamColor.BLACK)
+                    {
+                        if(existingGame.blackUsername() == null)
+                        {
+                            newData = new GameData(existingGame.gameID(), existingGame.whiteUsername(), username, existingGame.gameName(), existingGame.game());
+                        }
+                        else
+                            throw new DataAccessException("Error: already taken");
+                    }
+                    if(newData != null)
+                    {
+                        deleteGame(existingGame.gameID());
+                        games.add(newData);
+                    }
+                    else
+                        throw new DataAccessException("Error: Something really wonky happened");
+                }
+
+            }
+        }
+        throw new DataAccessException("Error: There is no game with that ID");
     }
 
     @Override
     public boolean deleteGame(int gameID) throws DataAccessException
     {
-        return false;
+        for (GameData existingGame: games)
+        {
+            if(existingGame.gameID() == gameID)
+            {
+                GameData deadGame = existingGame;
+                return games.remove(deadGame);
+            }
+        }
+        throw new DataAccessException("Error: There is no game with that ID");
     }
 
     @Override

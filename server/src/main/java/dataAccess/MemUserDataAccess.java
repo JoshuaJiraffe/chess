@@ -1,7 +1,9 @@
 package dataAccess;
 
+import model.GameData;
 import model.UserData;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,6 +52,12 @@ public class MemUserDataAccess implements UserDataAccess
             }
         }
         throw new DataAccessException("There exists no user with that username");
+    }
+
+    @Override
+    public Collection<UserData> listUsers() throws DataAccessException
+    {
+        return users;
     }
 
     @Override

@@ -3,8 +3,10 @@ package dataAccess;
 import model.AuthData;
 import model.UserData;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class MemAuthDataAccess implements AuthDataAccess
 {
@@ -18,19 +20,38 @@ public class MemAuthDataAccess implements AuthDataAccess
     @Override
     public AuthData createAuth(UserData user) throws DataAccessException
     {
-        return null;
+        String authToken = UUID.randomUUID().toString();
+        AuthData auth = new AuthData(authToken, user.username());
+        auths.add(auth);
+        return auth;
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException
     {
-        return null;
+        for(AuthData existingAuth : auths)
+            if(existingAuth.authToken() == authToken)
+                return existingAuth;
+        throw new DataAccessException("Error: This auth token is not valid");
+    }
+
+    @Override
+    public Collection<AuthData> listAuths() throws DataAccessException
+    {
+        return auths;
     }
 
     @Override
     public boolean deleteAuth(String authToken) throws DataAccessException
     {
-        return false;
+        for(AuthData existingAuth : auths)
+            if(existingAuth.authToken() == authToken)
+            {
+                AuthData deadAuth = existingAuth;
+                auths.remove(deadAuth);
+                return true;
+            }
+        throw new DataAccessException("Error: This auth token does not exist");
     }
 
     @Override

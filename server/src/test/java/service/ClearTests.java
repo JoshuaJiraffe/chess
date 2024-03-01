@@ -26,6 +26,7 @@ class ClearTests
         expected.put("Users", 0);
         expected.put("Games", 0);
         expected.put("Auths", 0);
+
         clearService.clear();
         assertEquals(expected, clearService.getDataSizes());
     }
