@@ -55,7 +55,8 @@ class UserServiceTests
     void loginSuccess() throws DataAccessException
     {
         AuthData realToken = userService.login("name", "pass");
-        assertTrue(authDAO.listAuths().contains(realToken));
+        AuthData actual = authDAO.getAuth(realToken.authToken());
+        assertEquals(realToken, actual);
     }
     @Test
     void loginFailWrongPass() throws DataAccessException
@@ -77,7 +78,9 @@ class UserServiceTests
     {
         AuthData realToken = userService.login("name", "pass");
         userService.logout(realToken.authToken());
-        assertFalse(authDAO.listAuths().contains(realToken));
+        assertThrows(DataAccessException.class, () -> {
+            authDAO.getAuth(realToken.authToken());
+        });
     }
 
     @Test

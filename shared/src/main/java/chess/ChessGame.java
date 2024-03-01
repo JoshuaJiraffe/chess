@@ -78,9 +78,7 @@ public class ChessGame {
                 for(int i = 5; i <= 7; i++)
                 {
                     test = new ChessPosition(homerow, i);
-                    testBoard.addPiece(start, null);
-                    testBoard.addPiece(test, movingPiece);
-                    if(inCheckHelper(movingPiece.getTeamColor(), testBoard))
+                    if(!testHelper(test, start, homerow, i, movingPiece, testBoard))
                         return false;
                 }
             }
@@ -89,9 +87,7 @@ public class ChessGame {
                 for(int i = 5; i >= 3; i--)
                 {
                     test = new ChessPosition(homerow, i);
-                    testBoard.addPiece(start, null);
-                    testBoard.addPiece(test, movingPiece);
-                    if(inCheckHelper(movingPiece.getTeamColor(), testBoard))
+                    if(!testHelper(test, start, homerow, i, movingPiece, testBoard))
                         return false;
                 }
             }
@@ -104,6 +100,16 @@ public class ChessGame {
             return !inCheckHelper(movingPiece.getTeamColor(), testBoard);
         }
     }
+    public boolean testHelper(ChessPosition test, ChessPosition start, int homerow, int i, ChessPiece movingPiece, ChessBoard testBoard)
+    {
+        test = new ChessPosition(homerow, i);
+        testBoard.addPiece(start, null);
+        testBoard.addPiece(test, movingPiece);
+        if(inCheckHelper(movingPiece.getTeamColor(), testBoard))
+            return false;
+        return true;
+    }
+
 
     /**
      * Makes a move in a chess game

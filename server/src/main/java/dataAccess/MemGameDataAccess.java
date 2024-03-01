@@ -39,19 +39,6 @@ public class MemGameDataAccess implements GameDataAccess
     }
 
     @Override
-    public boolean updateGame(int gameID, ChessGame game) throws DataAccessException
-    {
-        for (GameData existingGame: games)
-        {
-            if(existingGame.gameID() == gameID)
-            {
-                return true;
-            }
-        }
-        throw new DataAccessException("Error: bad request", 400);
-    }
-
-    @Override
     public GameData joinGame(String username, ChessGame.TeamColor playerColor, int gameID) throws DataAccessException
     {
         for (GameData existingGame: games)

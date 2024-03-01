@@ -33,8 +33,12 @@ class ClearServiceTests
         expected.put("Users", 0);
         expected.put("Games", 0);
         expected.put("Auths", 0);
+        Map<String, Integer> actual = new HashMap<>();
+        actual.put("Users", userDAO.getSize());
+        actual.put("Games", gameDAO.getSize());
+        actual.put("Auths", authDAO.getSize());
 
         clearService.clear();
-        assertEquals(expected, clearService.getDataSizes());
+        assertEquals(expected, actual);
     }
 }

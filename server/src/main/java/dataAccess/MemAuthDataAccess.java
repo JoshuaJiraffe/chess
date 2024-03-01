@@ -35,11 +35,6 @@ public class MemAuthDataAccess implements AuthDataAccess
         throw new DataAccessException("Error: unauthorized", 401);
     }
 
-    @Override
-    public Collection<AuthData> listAuths() throws DataAccessException
-    {
-        return auths;
-    }
 
     @Override
     public boolean deleteAuth(String authToken) throws DataAccessException

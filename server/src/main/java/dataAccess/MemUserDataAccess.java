@@ -55,12 +55,6 @@ public class MemUserDataAccess implements UserDataAccess
     }
 
     @Override
-    public Collection<UserData> listUsers() throws DataAccessException
-    {
-        return users;
-    }
-
-    @Override
     public int getSize() throws DataAccessException
     {
         return users.size();

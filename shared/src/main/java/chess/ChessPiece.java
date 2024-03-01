@@ -79,7 +79,6 @@ public class ChessPiece {
 
     public boolean getMoved() { return this.hasMoved; }
 
-    public int getMoves() { return this.numMoves; }
 
     public void move() {
         this.hasMoved = true;

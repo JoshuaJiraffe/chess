@@ -20,14 +20,6 @@ public class ClearService
         this.gameAccess = gameAccess;
         this.authAccess = authAccess;
     }
-    public Map<String, Integer> getDataSizes() throws DataAccessException
-    {
-        Map<String, Integer> sizes = new HashMap<>();
-        sizes.put("Users", userAccess.getSize());
-        sizes.put("Games", gameAccess.getSize());
-        sizes.put("Auths", authAccess.getSize());
-        return sizes;
-    }
 
     public void clear() throws DataAccessException
     {
