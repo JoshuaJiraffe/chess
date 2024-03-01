@@ -27,7 +27,7 @@ public class GameHandler
         String auth = req.headers("authorization");
         Collection<GameData> games = gameService.listGames(auth);
         res.status(200);
-        return gson.toJson(games);
+        return gson.toJson(Map.of("games", games));
     }
 
     public Object createGame(Request req, Response res) throws DataAccessException
@@ -43,16 +43,21 @@ public class GameHandler
     {
         String auth = req.headers("authorization");
         Map<String, Object> body = gson.fromJson(req.body(), Map.class);
-        int gameID = (int)body.get("gameID");
+        int gameID = (int)((double)(body.get("gameID")));
         String colour = (String)body.get("playerColor");
-        ChessGame.TeamColor color;
-        if(colour.equals("WHITE"))
-            color = ChessGame.TeamColor.WHITE;
+        if(colour == null)
+            gameService.joinGame(auth, null, gameID);
         else
-            color = ChessGame.TeamColor.BLACK;
-        gameService.joinGame(auth, color, gameID);
+        {
+            ChessGame.TeamColor color;
+            if(colour.equals("WHITE"))
+                color = ChessGame.TeamColor.WHITE;
+            else
+                color = ChessGame.TeamColor.BLACK;
+            gameService.joinGame(auth, color, gameID);
+        }
         res.status(200);
-        return "{}";
+        return gson.toJson(Map.of());
     }
 
 }

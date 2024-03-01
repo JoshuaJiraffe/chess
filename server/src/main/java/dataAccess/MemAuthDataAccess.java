@@ -15,6 +15,7 @@ public class MemAuthDataAccess implements AuthDataAccess
     public void clear() throws DataAccessException
     {
         auths.clear();
+        getSize();
     }
 
     @Override
@@ -30,7 +31,7 @@ public class MemAuthDataAccess implements AuthDataAccess
     public AuthData getAuth(String authToken) throws DataAccessException
     {
         for(AuthData existingAuth : auths)
-            if(existingAuth.authToken() == authToken)
+            if(existingAuth.authToken().equals(authToken))
                 return existingAuth;
         throw new DataAccessException("Error: unauthorized", 401);
     }
@@ -40,13 +41,13 @@ public class MemAuthDataAccess implements AuthDataAccess
     public boolean deleteAuth(String authToken) throws DataAccessException
     {
         for(AuthData existingAuth : auths)
-            if(existingAuth.authToken() == authToken)
+            if(existingAuth.authToken().equals(authToken))
             {
                 AuthData deadAuth = existingAuth;
                 auths.remove(deadAuth);
                 return true;
             }
-        throw new DataAccessException("Error: bad request", 400);
+        throw new DataAccessException("Error: unauthorized", 401);
     }
 
     @Override

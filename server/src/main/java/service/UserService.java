@@ -18,6 +18,8 @@ public class UserService
     }
     public AuthData register(UserData user) throws DataAccessException
     {
+        if(user.password() == null || user.email() == null || user.username() == null)
+            throw new DataAccessException("Error: bad request", 400);
         user = userAccess.createUser(user);
         return authAccess.createAuth(user);
     }

@@ -16,6 +16,7 @@ public class MemGameDataAccess implements GameDataAccess
     public void clear() throws DataAccessException
     {
         games.clear();
+        getSize();
     }
 
     @Override
@@ -23,7 +24,7 @@ public class MemGameDataAccess implements GameDataAccess
     {
         for (GameData existingGame: games)
         {
-            if(existingGame.gameName() == gameName)
+            if(existingGame.gameName().equals(gameName))
                 throw new DataAccessException("Error: bad request", 400);
         }
         GameData game = new GameData(nextID, null, null, gameName, new ChessGame());

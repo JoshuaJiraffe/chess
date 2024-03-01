@@ -14,6 +14,7 @@ public class MemUserDataAccess implements UserDataAccess
     public void clear() throws DataAccessException
     {
         users.clear();
+        getSize();
     }
 
     @Override
@@ -21,9 +22,9 @@ public class MemUserDataAccess implements UserDataAccess
     {
         for (UserData existingUser: users)
         {
-            if(existingUser.email() == user.email())
+            if(existingUser.email().equals(user.email()))
                 throw new DataAccessException("Error: already taken", 403);
-            if (existingUser.username() == user.username())
+            if (existingUser.username().equals(user.username()))
                 throw new DataAccessException("Error: already taken", 403);
         }
         users.add(user);
@@ -34,7 +35,7 @@ public class MemUserDataAccess implements UserDataAccess
     public UserData getUser(String username) throws DataAccessException
     {
         for(UserData existingUser: users)
-            if(existingUser.username() == username)
+            if(existingUser.username().equals(username))
                 return existingUser;
         throw new DataAccessException("Error: bad request", 400);
     }
@@ -44,14 +45,14 @@ public class MemUserDataAccess implements UserDataAccess
     {
         for(UserData existingUser: users)
         {
-            if(existingUser.username() == username)
+            if(existingUser.username().equals(username))
             {
-                if(existingUser.password() == password)
+                if(existingUser.password().equals(password))
                     return true;
                 return false;
             }
         }
-        throw new DataAccessException("Error: bad request", 400);
+        throw new DataAccessException("Error: bad request", 401);
     }
 
     @Override
