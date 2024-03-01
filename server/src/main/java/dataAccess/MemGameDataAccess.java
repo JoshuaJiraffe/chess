@@ -85,6 +85,7 @@ public class MemGameDataAccess implements GameDataAccess
                     {
                         deleteGame(existingGame.gameID());
                         games.add(newData);
+                        return newData;
                     }
                     else
                         throw new DataAccessException("Error: Something really wonky happened");
