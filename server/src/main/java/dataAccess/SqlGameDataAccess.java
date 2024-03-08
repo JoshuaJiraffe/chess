@@ -14,7 +14,8 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     @Override
     public void clear() throws DataAccessException
     {
-
+        var statement = "TRUNCATE game";
+        executeUpdate(statement);
     }
 
     @Override

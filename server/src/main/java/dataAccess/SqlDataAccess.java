@@ -3,6 +3,7 @@ package dataAccess;
 import chess.ChessGame;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static java.sql.Types.NULL;
 
@@ -13,17 +14,24 @@ public class SqlDataAccess
         configureDatabase();
     }
 
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
+    protected int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
+            try (var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof ChessGame p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    switch (param)
+                    {
+                        case String p -> ps.setString(i + 1, p);
+                        case Integer p -> ps.setInt(i + 1, p);
+                        case ChessGame p -> ps.setString(i + 1, p.toString());
+                        case null -> ps.setNull(i + 1, NULL);
+                        default ->
+                        {
+                        }
+                    }
                 }
-                ps.executeUpdate();
+
+                return ps.executeUpdate();
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), 500);

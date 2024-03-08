@@ -15,29 +15,24 @@ public class Server {
             port = Integer.parseInt(args[0]);
         new Server().run(port);
     }
-    private final GameDataAccess gameDAO;
-    private final UserDataAccess userDAO;
-    private final AuthDataAccess authDAO;
-    private final ClearService clearService;
-    private final GameService gameService;
-    private final UserService userService;
+
     private final ClearHandler clearHandler;
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
     public Server()
     {
-        gameDAO = new MemGameDataAccess();
-        userDAO = new MemUserDataAccess();
-        authDAO = new MemAuthDataAccess();
-        clearService = new ClearService(userDAO, gameDAO, authDAO);
-        gameService = new GameService(gameDAO, authDAO);
-        userService = new UserService(userDAO, authDAO);
+        GameDataAccess gameDAO = new SqlGameDataAccess();
+        UserDataAccess userDAO = new SqlUserDataAccess();
+        AuthDataAccess authDAO = new SqlAuthDataAccess();
+        ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
+        GameService gameService = new GameService(gameDAO, authDAO);
+        UserService userService = new UserService(userDAO, authDAO);
         clearHandler = new ClearHandler(clearService);
         userHandler = new UserHandler(userService);
         gameHandler = new GameHandler(gameService);
     }
 
-    public int run(int desiredPort) {
+    public int run(int desiredPort){
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 

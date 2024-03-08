@@ -23,8 +23,8 @@ public class ClearService
 
     public void clear() throws DataAccessException
     {
+        authAccess.clear();
         userAccess.clear();
         gameAccess.clear();
-        authAccess.clear();
     }
 }

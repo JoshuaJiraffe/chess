@@ -11,7 +11,8 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
     @Override
     public void clear() throws DataAccessException
     {
-
+        var statement = "TRUNCATE user";
+        executeUpdate(statement);
     }
 
     @Override
@@ -32,9 +33,15 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
         return false;
     }
 
+    public boolean userExists(UserData user)
+    {
+        var statement = "SELECT COUNT(*) FROM user"
+    }
+
     @Override
     public int getSize() throws DataAccessException
     {
-        return 0;
+        var statement = "SELECT COUNT(*) FROM user";
+        return executeUpdate(statement);
     }
 }
