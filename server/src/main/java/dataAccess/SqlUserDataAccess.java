@@ -2,8 +2,12 @@ package dataAccess;
 
 import model.UserData;
 
-public class SqlUserDataAccess implements UserDataAccess
+public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
 {
+    public SqlUserDataAccess() throws DataAccessException
+    {
+        super();
+    }
     @Override
     public void clear() throws DataAccessException
     {

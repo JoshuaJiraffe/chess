@@ -3,8 +3,13 @@ package dataAccess;
 import model.AuthData;
 import model.UserData;
 
-public class SqlAuthDataAccess implements AuthDataAccess
+public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
 {
+    public SqlAuthDataAccess() throws DataAccessException
+    {
+        super();
+    }
+
     @Override
     public void clear() throws DataAccessException
     {

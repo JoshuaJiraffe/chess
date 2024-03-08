@@ -5,8 +5,12 @@ import model.GameData;
 
 import java.util.Collection;
 
-public class SqlGameDataAccess implements GameDataAccess
+public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
 {
+    public SqlGameDataAccess() throws DataAccessException
+    {
+        super();
+    }
     @Override
     public void clear() throws DataAccessException
     {
