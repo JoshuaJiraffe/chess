@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -74,7 +75,7 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     @Override
     public GameData joinGame(String username, ChessGame.TeamColor playerColor, int gameID) throws DataAccessException
     {
-        var updateStatement = "UPDATE game SET blackUsername = ?, whiteUsername = ?";
+        var updateStatement = "UPDATE game SET whiteUsername=?, blackUsername=?, json=? WHERE gameID=?";
         try(var conn = DatabaseManager.getConnection()){
             var statement = "SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?";
             try(var ps = conn.prepareStatement(statement)){
@@ -105,8 +106,15 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
                             else
                                 throw new DataAccessException("Error: already taken", 403);
                         }
-                        executeUpdate(updateStatement, whiteUsername, blackUsername);
-                        return new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+                        GameData newGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+                        executeUpdate(updateStatement, whiteUsername, blackUsername, new Gson().toJson(newGame), gameID);
+                        var pps = conn.prepareStatement("SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?");
+                        pps.setInt(1, gameID);
+                        var rrs = pps.executeQuery();
+                        rrs.next();
+                        String white = rs.getString("whiteUsername");
+                        String black = rs.getString("blackUsername");
+                        return newGame;
                     }
                     else
                     {
@@ -115,7 +123,7 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
                 }
             }
         }
-        catch (Exception e)
+        catch (SQLException e)
         {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }
@@ -125,11 +133,18 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     @Override
     public boolean deleteGame(int gameID) throws DataAccessException
     {
-        var statement = "DELETE FROM game WHERE id=?";
-        int rowsAffected = executeUpdate(statement, gameID);
-        if(rowsAffected == 0)
-            throw new DataAccessException("Error: bad request", 400);
-        return true;
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "DELETE FROM game WHERE id=?";
+            try(var ps = conn.prepareStatement(statement)){
+                ps.setInt(1, gameID);
+                int rowsAffected = ps.executeUpdate();
+                if(rowsAffected == 0)
+                    throw new DataAccessException("Error: bad request", 400);
+                return true;
+            }
+        }catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), 500);
+        }
     }
 
     @Override

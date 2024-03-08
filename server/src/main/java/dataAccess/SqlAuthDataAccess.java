@@ -59,11 +59,19 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
     @Override
     public boolean deleteAuth(String authToken) throws DataAccessException
     {
-        var statement = "DELETE FROM auth WHERE authToken=?";
-        int rowsAffected = executeUpdate(statement, authToken);
-        if(rowsAffected == 0)
-            throw new DataAccessException("Error: unauthorized", 401);
-        return true;
+        try (var conn = DatabaseManager.getConnection()){
+            var statement = "DELETE FROM auth WHERE authToken=?";
+            try(var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new DataAccessException("Error: unauthorized", 401);
+                }
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(), 500);
+        }
     }
 
     @Override

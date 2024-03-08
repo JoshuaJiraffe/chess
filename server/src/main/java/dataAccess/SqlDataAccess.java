@@ -16,9 +16,9 @@ public class SqlDataAccess
         configureDatabase();
     }
 
-    protected int executeUpdate(String statement, Object... params) throws DataAccessException {
+    protected void executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
+            try (var ps = conn.prepareStatement(statement)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
                     switch (param)
@@ -32,8 +32,9 @@ public class SqlDataAccess
                         }
                     }
                 }
+                ps.executeUpdate();
+                return;
 
-                return ps.executeUpdate();
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), 500);
