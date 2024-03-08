@@ -16,35 +16,41 @@ public class Server {
         new Server().run(port);
     }
 
-    private final ClearHandler clearHandler;
-    private final UserHandler userHandler;
-    private final GameHandler gameHandler;
     public Server()
     {
-        GameDataAccess gameDAO = new SqlGameDataAccess();
-        UserDataAccess userDAO = new SqlUserDataAccess();
-        AuthDataAccess authDAO = new SqlAuthDataAccess();
-        ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
-        GameService gameService = new GameService(gameDAO, authDAO);
-        UserService userService = new UserService(userDAO, authDAO);
-        clearHandler = new ClearHandler(clearService);
-        userHandler = new UserHandler(userService);
-        gameHandler = new GameHandler(gameService);
+
     }
 
     public int run(int desiredPort){
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
+        try
+        {
+            GameDataAccess gameDAO = new SqlGameDataAccess();
+            UserDataAccess userDAO = new SqlUserDataAccess();
+            AuthDataAccess authDAO = new SqlAuthDataAccess();
+            ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
+            GameService gameService = new GameService(gameDAO, authDAO);
+            UserService userService = new UserService(userDAO, authDAO);
+            ClearHandler clearHandler = new ClearHandler(clearService);
+            UserHandler userHandler = new UserHandler(userService);
+            GameHandler gameHandler = new GameHandler(gameService);
 
-        // Register your endpoints and handle exceptions here.
-        Spark.delete("/db", (req, res) -> (clearHandler).clear(req, res));
-        Spark.post("/user", (req, res) -> (userHandler).register(req, res));
-        Spark.post("/session", (req, res) -> (userHandler).login(req, res));
-        Spark.delete("/session", (req, res) -> (userHandler).logout(req, res));
-        Spark.get("/game", (req, res) -> (gameHandler).listGames(req, res));
-        Spark.post("/game", (req, res) -> (gameHandler).createGame(req, res));
-        Spark.put("/game", (req, res) -> (gameHandler).joinGame(req, res));
+            // Register your endpoints and handle exceptions here.
+            Spark.delete("/db", (req, res) -> (clearHandler).clear(req, res));
+            Spark.post("/user", (req, res) -> (userHandler).register(req, res));
+            Spark.post("/session", (req, res) -> (userHandler).login(req, res));
+            Spark.delete("/session", (req, res) -> (userHandler).logout(req, res));
+            Spark.get("/game", (req, res) -> (gameHandler).listGames(req, res));
+            Spark.post("/game", (req, res) -> (gameHandler).createGame(req, res));
+            Spark.put("/game", (req, res) -> (gameHandler).joinGame(req, res));
+        }
+        catch (DataAccessException e)
+        {
+            System.out.printf("Unable to start server: %s%n", e.getMessage());
+        }
+
 
         Spark.exception(DataAccessException.class, this::exceptionHandler);
 

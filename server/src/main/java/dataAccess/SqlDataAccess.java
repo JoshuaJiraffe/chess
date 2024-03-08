@@ -56,7 +56,7 @@ public class SqlDataAccess
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`authToken`),
               FOREIGN KEY (`username`) REFERENCES user(`username`)
-            ) 
+            )
             """,
 
             """
@@ -65,7 +65,7 @@ public class SqlDataAccess
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
-              `jsonGame` TEXT NOT NULL
+              `jsonGame` TEXT NOT NULL,
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)
             )
