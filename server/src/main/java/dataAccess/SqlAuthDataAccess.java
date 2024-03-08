@@ -46,7 +46,7 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
                 {
                     if(rs.next())
                     {
-                        String json = rs.getString(1);
+                        String json = rs.getString("json");
                         return new Gson().fromJson(json, AuthData.class);
                     }
                     else
@@ -72,7 +72,19 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
     @Override
     public int getSize() throws DataAccessException
     {
-        var statement = "SELECT COUNT(*) FROM auth";
-        return executeUpdate(statement);
+        int size = 0;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT COUNT(*) FROM auth";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        size = rs.getInt(1);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
+        }
+        return size;
     }
 }

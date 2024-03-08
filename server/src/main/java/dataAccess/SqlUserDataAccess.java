@@ -100,7 +100,19 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
     @Override
     public int getSize() throws DataAccessException
     {
-        var statement = "SELECT COUNT(*) FROM user";
-        return executeUpdate(statement);
+        int size = 0;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT COUNT(*) FROM user";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        size = rs.getInt(1);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
+        }
+        return size;
     }
 }
