@@ -36,17 +36,21 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException
     {
-        var statement = "SELECT json FROM auth WHERE authToken=?";
-        try(var rs = executeQuery(statement, authToken))
-        {
-            if(rs.next())
-            {
-                String json = rs.getString("json");
-                return new Gson().fromJson(json, AuthData.class);
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT json FROM auth WHERE authToken=?";
+            try(var ps = conn.prepareStatement(statement)){
+                ps.setString(1, authToken);
+                try(var rs = ps.executeQuery()){
+                    if(rs.next())
+                    {
+                        String json = rs.getString("json");
+                        return new Gson().fromJson(json, AuthData.class);
+                    }
+                    else
+                        throw new DataAccessException("Error: unauthorized", 401);
+                }
             }
-            else
-                throw new DataAccessException("Error: unauthorized", 401);
-        } catch (SQLException e)
+        }catch(SQLException e)
         {
             throw new DataAccessException(e.getMessage(), 500);
         }
@@ -67,10 +71,17 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
     {
         int size = 0;
         var statement = "SELECT COUNT(*) FROM auth";
-        try (var rs = executeQuery(statement)){
-            if (rs.next())
-                size = rs.getInt(1);
-        } catch (Exception e) {
+        try(var conn = DatabaseManager.getConnection())
+        {
+            try (var ps = conn.prepareStatement(statement))
+            {
+                try (var rs = ps.executeQuery())
+                {
+                    if (rs.next())
+                        size = rs.getInt(1);
+                }
+            }
+        }catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }
         return size;

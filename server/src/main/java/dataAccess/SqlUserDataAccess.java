@@ -116,10 +116,17 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
     {
         int size = 0;
         var statement = "SELECT COUNT(*) FROM user";
-        try (var rs = executeQuery(statement)){
-            if (rs.next())
-                size = rs.getInt(1);
-        } catch (Exception e) {
+        try(var conn = DatabaseManager.getConnection())
+        {
+            try (var ps = conn.prepareStatement(statement))
+            {
+                try (var rs = ps.executeQuery())
+                {
+                    if (rs.next())
+                        size = rs.getInt(1);
+                }
+            }
+        }catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }
         return size;

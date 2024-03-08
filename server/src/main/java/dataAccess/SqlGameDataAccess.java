@@ -24,12 +24,18 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     @Override
     public GameData createGame(String gameName) throws DataAccessException
     {
-        try(var rs = executeQuery("SELECT COUNT(*) FROM game WHERE gameName = ?"))
-        {
-            if(rs.next())
-                if(rs.getInt(1) > 0)
-                    throw new DataAccessException("Error: bad request", 400);
-        } catch (Exception e){
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT COUNT(*) FROM game WHERE gameName=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, gameName);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        if(rs.getInt(1) > 0)
+                            throw new DataAccessException("Error: bad request", 400);
+                    }
+                }
+            }
+        } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }
 
@@ -47,14 +53,19 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     public Collection<GameData> listGames() throws DataAccessException
     {
         Collection<GameData> games = new HashSet<>();
-        var statement = "SELECT json FROM game";
-        try (var rs = executeQuery(statement)) {
-            while (rs.next()) {
-                String json = rs.getString("json");
-                GameData game = new Gson().fromJson(json, GameData.class);
-                games.add(game);
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT json FROM game";
+            try(var ps = conn.prepareStatement(statement)){
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String json = rs.getString("json");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        games.add(game);
+                    }
+                }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }
         return games;
@@ -64,39 +75,44 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     public GameData joinGame(String username, ChessGame.TeamColor playerColor, int gameID) throws DataAccessException
     {
         var updateStatement = "UPDATE game SET blackUsername = ?, whiteUsername = ?";
-        var statement = "SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?";
-        try(var rs = executeQuery(statement, gameID))
-        {
-            if(rs.next())
-            {
-                String json = rs.getString("json");
-                GameData game = new Gson().fromJson(json, GameData.class);
-                String whiteUsername = rs.getString("whiteUsername");
-                String blackUsername = rs.getString("blackUsername");
-                if(playerColor == ChessGame.TeamColor.WHITE)
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?";
+            try(var ps = conn.prepareStatement(statement)){
+                ps.setInt(1, gameID);
+                try(var rs = ps.executeQuery())
                 {
-                    if(whiteUsername == null)
+                    if(rs.next())
                     {
-                        whiteUsername = username;
+                        String json = rs.getString("json");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        String whiteUsername = rs.getString("whiteUsername");
+                        String blackUsername = rs.getString("blackUsername");
+                        if(playerColor == ChessGame.TeamColor.WHITE)
+                        {
+                            if(whiteUsername == null)
+                            {
+                                whiteUsername = username;
+                            }
+                            else
+                                throw new DataAccessException("Error: already taken", 403);
+                        }
+                        else if(playerColor == ChessGame.TeamColor.BLACK)
+                        {
+                            if(blackUsername == null)
+                            {
+                                blackUsername = username;
+                            }
+                            else
+                                throw new DataAccessException("Error: already taken", 403);
+                        }
+                        executeUpdate(updateStatement, whiteUsername, blackUsername);
+                        return new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
                     }
                     else
-                        throw new DataAccessException("Error: already taken", 403);
-                }
-                else if(playerColor == ChessGame.TeamColor.BLACK)
-                {
-                    if(blackUsername == null)
                     {
-                        blackUsername = username;
+                        throw new DataAccessException("Error: bad request", 400);
                     }
-                    else
-                        throw new DataAccessException("Error: already taken", 403);
                 }
-                executeUpdate(updateStatement, whiteUsername, blackUsername);
-                return new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
-            }
-            else
-            {
-                throw new DataAccessException("Error: bad request", 400);
             }
         }
         catch (Exception e)
@@ -121,10 +137,17 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     {
         int size = 0;
         var statement = "SELECT COUNT(*) FROM game";
-        try (var rs = executeQuery(statement)){
-            if (rs.next())
-                size = rs.getInt(1);
-        } catch (Exception e) {
+        try(var conn = DatabaseManager.getConnection())
+        {
+            try (var ps = conn.prepareStatement(statement))
+            {
+                try (var rs = ps.executeQuery())
+                {
+                    if (rs.next())
+                        size = rs.getInt(1);
+                }
+            }
+        }catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }
         return size;
