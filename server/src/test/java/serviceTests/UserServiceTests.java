@@ -1,8 +1,6 @@
 package serviceTests;
 
-import dataAccess.DataAccessException;
-import dataAccess.MemAuthDataAccess;
-import dataAccess.MemUserDataAccess;
+import dataAccess.*;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTests
 {
     UserService userService;
-    MemUserDataAccess userDAO;
-    MemAuthDataAccess authDAO;
+    UserDataAccess userDAO;
+    AuthDataAccess authDAO;
     UserData user1;
     AuthData token;
     @BeforeEach

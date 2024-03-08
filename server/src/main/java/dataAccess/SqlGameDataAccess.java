@@ -134,7 +134,7 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     public boolean deleteGame(int gameID) throws DataAccessException
     {
         try(var conn = DatabaseManager.getConnection()){
-            var statement = "DELETE FROM game WHERE id=?";
+            var statement = "DELETE FROM game WHERE gameID=?";
             try(var ps = conn.prepareStatement(statement)){
                 ps.setInt(1, gameID);
                 int rowsAffected = ps.executeUpdate();

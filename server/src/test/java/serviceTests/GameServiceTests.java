@@ -1,9 +1,7 @@
 package serviceTests;
 
 import chess.ChessGame;
-import dataAccess.DataAccessException;
-import dataAccess.MemAuthDataAccess;
-import dataAccess.MemGameDataAccess;
+import dataAccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -19,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameServiceTests
 {
     GameService gameService;
-    MemGameDataAccess gameDAO;
-    MemAuthDataAccess authDAO;
+    GameDataAccess gameDAO;
+    AuthDataAccess authDAO;
     UserData user;
     AuthData token;
     @BeforeEach

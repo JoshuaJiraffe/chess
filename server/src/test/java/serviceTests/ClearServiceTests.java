@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class ClearServiceTests
 {
     ClearService clearService;
-    MemGameDataAccess gameDAO;
-    MemUserDataAccess userDAO;
-    MemAuthDataAccess authDAO;
+    GameDataAccess gameDAO;
+    UserDataAccess userDAO;
+    AuthDataAccess authDAO;
     @BeforeEach
     void setUp() throws DataAccessException
     {

@@ -39,7 +39,7 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
     {
         try(var conn = DatabaseManager.getConnection())
         {
-            var statement = "SELECT json FROM auth WHERE username=?";
+            var statement = "SELECT json FROM user WHERE username=?";
             try(var ps = conn.prepareStatement(statement))
             {
                 ps.setString(1, username);
