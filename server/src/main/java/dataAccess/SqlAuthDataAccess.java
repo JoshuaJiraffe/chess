@@ -36,23 +36,16 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException
     {
-        try(var conn = DatabaseManager.getConnection())
+        var statement = "SELECT json FROM auth WHERE authToken=?";
+        try(var rs = executeQuery(statement, authToken))
         {
-            var statement = "SELECT json FROM auth WHERE authToken=?";
-            try(var ps = conn.prepareStatement(statement))
+            if(rs.next())
             {
-                ps.setString(1, authToken);
-                try(var rs = ps.executeQuery())
-                {
-                    if(rs.next())
-                    {
-                        String json = rs.getString("json");
-                        return new Gson().fromJson(json, AuthData.class);
-                    }
-                    else
-                        throw new DataAccessException("Error: unauthorized", 401);
-                }
+                String json = rs.getString("json");
+                return new Gson().fromJson(json, AuthData.class);
             }
+            else
+                throw new DataAccessException("Error: unauthorized", 401);
         } catch (SQLException e)
         {
             throw new DataAccessException(e.getMessage(), 500);
