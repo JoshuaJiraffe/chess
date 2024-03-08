@@ -79,7 +79,7 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
                         return encoder.matches(password, user.password());
                     }
                     else
-                        throw new DataAccessException("Error: bad request", 400);
+                        throw new DataAccessException("Error: unauthorized", 401);
                 }
             }
         } catch (SQLException e)
@@ -90,10 +90,24 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
 
     public boolean userExists(UserData user) throws DataAccessException
     {
-        var statement = "SELECT COUNT(*) FROM user WHERE username = ? OR email = ?";
-        if (executeUpdate(statement, user.username(), user.email()) > 0)
-            return true;
-        return false;
+        try(var conn = DatabaseManager.getConnection())
+        {
+            var statement = "SELECT COUNT(*) FROM user WHERE username = ? OR email = ?";
+            try(var ps = conn.prepareStatement(statement))
+            {
+                ps.setString(1, user.username());
+                ps.setString(2, user.email());
+                try(var rs = ps.executeQuery())
+                {
+                        rs.next();
+                        int count = rs.getInt(1);
+                        return (count > 0);
+                }
+            }
+        } catch (SQLException e)
+        {
+            throw new DataAccessException(e.getMessage(), 500);
+        }
 
     }
 
@@ -101,15 +115,10 @@ public class SqlUserDataAccess extends SqlDataAccess implements UserDataAccess
     public int getSize() throws DataAccessException
     {
         int size = 0;
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT COUNT(*) FROM user";
-            try (var ps = conn.prepareStatement(statement)) {
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        size = rs.getInt(1);
-                    }
-                }
-            }
+        var statement = "SELECT COUNT(*) FROM user";
+        try (var rs = executeQuery(statement)){
+            if (rs.next())
+                size = rs.getInt(1);
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }

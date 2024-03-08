@@ -2,6 +2,8 @@ package dataAccess;
 
 import chess.ChessGame;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -14,7 +16,8 @@ public class SqlDataAccess
         configureDatabase();
     }
 
-    protected int executeUpdate(String statement, Object... params) throws DataAccessException {
+    private PreparedStatement prepare(String statement, Object... params) throws DataAccessException
+    {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
@@ -30,11 +33,29 @@ public class SqlDataAccess
                         }
                     }
                 }
-
-                return ps.executeUpdate();
+                return ps;
             }
         } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to prepare statement: %s, %s", statement, e.getMessage()), 500);
+        }
+    }
+
+    protected int executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (var ps = prepare(statement, params)) {
+                return ps.executeUpdate();
+        } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), 500);
+        }
+    }
+
+    protected ResultSet executeQuery(String statement, Object... params) throws DataAccessException
+    {
+        try(var ps = prepare(statement, params)){
+            try(var rs = ps.executeQuery()){
+                return rs;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to query database: %s, %s", statement, e.getMessage()), 500);
         }
     }
 
@@ -54,8 +75,7 @@ public class SqlDataAccess
               `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`authToken`),
-              FOREIGN KEY (`username`) REFERENCES user(`username`)
+              PRIMARY KEY (`authToken`)
             )
             """,
 

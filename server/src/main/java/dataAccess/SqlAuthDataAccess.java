@@ -27,7 +27,7 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
         String authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(authToken, user.username());
         var json = new Gson().toJson(auth);
-        var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ? ?)";
+        var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
         executeUpdate(statement, authToken, user.username(), json);
 
         return auth;
@@ -73,15 +73,10 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
     public int getSize() throws DataAccessException
     {
         int size = 0;
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT COUNT(*) FROM auth";
-            try (var ps = conn.prepareStatement(statement)) {
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        size = rs.getInt(1);
-                    }
-                }
-            }
+        var statement = "SELECT COUNT(*) FROM auth";
+        try (var rs = executeQuery(statement)){
+            if (rs.next())
+                size = rs.getInt(1);
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }

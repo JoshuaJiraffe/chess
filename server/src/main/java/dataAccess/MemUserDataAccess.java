@@ -52,7 +52,7 @@ public class MemUserDataAccess implements UserDataAccess
                 return false;
             }
         }
-        throw new DataAccessException("Error: bad request", 401);
+        throw new DataAccessException("Error: unauthorized", 401);
     }
 
     @Override
