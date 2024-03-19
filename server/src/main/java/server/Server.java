@@ -67,6 +67,10 @@ public class Server {
         res.body(new Gson().toJson(Map.of("message", e.getMessage())));
     }
 
+    public int port() {
+        return Spark.port();
+    }
+
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
