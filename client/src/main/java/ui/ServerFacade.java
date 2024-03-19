@@ -15,12 +15,10 @@ import java.rmi.ServerException;
 
 public class ServerFacade
 {
-    private final int port;
     private final String serverURL;
-    public ServerFacade(int porty)
+    public ServerFacade(String url)
     {
-        port = porty;
-        serverURL = "http://localhost:" + port;
+        serverURL = url;
     }
 
     public Object register()
