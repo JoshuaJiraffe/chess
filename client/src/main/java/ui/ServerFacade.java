@@ -1,8 +1,10 @@
 package ui;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
-import requestClasses.LoginRequest;
-import resultClasses.LoginResult;
+import model.AuthData;
+import model.GameData;
+import model.UserData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.rmi.ServerException;
+import java.util.Collection;
 
 public class ServerFacade
 {
@@ -21,34 +24,33 @@ public class ServerFacade
         serverURL = url;
     }
 
-    public Object register()
+    public AuthData register(UserData user)
     {
         return null;
     }
 
-    public LoginResult login(LoginRequest request)
+    public AuthData login(String username, String password)
     {
-        LoginResult result = new LoginResult();
-        return result;
+        return null;
 
     }
 
-    public Object logout()
+    public boolean logout(String authToken)
+    {
+        return false;
+    }
+
+    public Collection<GameData> listGames(String authToken)
     {
         return null;
     }
 
-    public Object listGames()
+    public GameData createGame(String authToken, String gameName)
     {
         return null;
     }
 
-    public Object createGame()
-    {
-        return null;
-    }
-
-    public Object joinGame()
+    public GameData joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID)
     {
         return null;
     }
