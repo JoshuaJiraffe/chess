@@ -15,6 +15,8 @@ import java.net.URI;
 import java.net.URL;
 import java.rmi.ServerException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 public class ServerFacade
 {
@@ -24,46 +26,56 @@ public class ServerFacade
         serverURL = url;
     }
 
-    public AuthData register(UserData user)
+    public AuthData register(UserData user) throws ServerException
     {
-        return null;
+        var path = "/user";
+        return this.makeRequest("POST", path, null, user, AuthData.class);
     }
 
-    public AuthData login(String username, String password)
+    public AuthData login(String username, String password) throws ServerException
     {
-        return null;
+        var path = "/session";
+        return this.makeRequest("POST", path, null, Map.of("username", username, "password", password), AuthData.class);
 
     }
 
-    public boolean logout(String authToken)
+    public boolean logout(String authToken) throws ServerException
     {
-        return false;
+        var path = "/session";
+        return this.makeRequest("DELETE", path, null, Map.of("authorization", authToken), boolean.class);
     }
 
-    public Collection<GameData> listGames(String authToken)
+    public Collection<GameData> listGames(String authToken) throws ServerException
     {
-        return null;
+        var path = "/game";
+        record listGameResponse(Set<GameData> games) {
+        }
+        var response = this.makeRequest("GET", path, authToken, null, listGameResponse.class);
+        return response.games();
     }
 
-    public GameData createGame(String authToken, String gameName)
+    public GameData createGame(String authToken, String gameName) throws ServerException
     {
-        return null;
+        var path = "/game";
+        return this.makeRequest("POST", path, authToken, Map.of("gameName", gameName), GameData.class);
     }
 
-    public GameData joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID)
+    public GameData joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws ServerException
     {
-        return null;
+        var path = "/game";
+        return this.makeRequest("PUT", path, authToken, Map.of("playerColor", playerColor, "gameID", gameID), GameData.class);
     }
 
 
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ServerException {
+    private <T> T makeRequest(String method, String path, String header, Object request, Class<T> responseClass) throws ServerException {
         try {
             URL url = (new URI(serverURL + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
-
+            if(header != null)
+                http.addRequestProperty("authorization", header);
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
