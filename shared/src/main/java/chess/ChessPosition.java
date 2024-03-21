@@ -56,6 +56,11 @@ public class ChessPosition {
         return col;
     }
 
+    public char getNot()
+    {
+        return not;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)

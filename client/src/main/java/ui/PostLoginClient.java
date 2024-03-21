@@ -33,8 +33,7 @@ public class PostLoginClient
     }
     public void run()
     {
-        out.println(ERASE_SCREEN);
-        out.println(RESET_TEXT);
+        out.println(ERASE_SCREEN + RESET_TEXT);
         out.println(SET_BG_COLOR_DARK_GREY);
         out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + WHITE_ROOK + "You successfully logged in!" + WHITE_ROOK);
         out.println(RESET_TEXT);
@@ -50,7 +49,6 @@ public class PostLoginClient
                 var msg = e.toString();
                 out.println(msg);
             }
-
         }
         out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_ITALIC + "You have successfully logged out. Type help to see the available commands" + RESET_TEXT);
 
