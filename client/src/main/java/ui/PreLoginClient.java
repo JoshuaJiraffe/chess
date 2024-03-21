@@ -28,6 +28,7 @@ public class PreLoginClient
     public void run()
     {
         out.println(ERASE_SCREEN);
+        out.println(RESET_TEXT);
         out.println(SET_BG_COLOR_DARK_GREY);
         out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + WHITE_QUEEN + "Welcome to Jiraffe's amazing chess game. Ready to lose?" + WHITE_QUEEN);
         out.println(RESET_TEXT);
@@ -116,6 +117,7 @@ public class PreLoginClient
                 throw ex;
             }
         }
+        out.println(RESET_TEXT);
     }
 
     private void register() throws ServerException
@@ -128,6 +130,15 @@ public class PreLoginClient
             String email = scanner.nextLine();
             out.print(SET_TEXT_COLOR_YELLOW + "Username: " + SET_TEXT_COLOR_WHITE);
             String username = scanner.nextLine();
+            while(username.equals("null") || username.length() > 20)
+            {
+                if(username.equals("null"))
+                    out.print(SET_TEXT_COLOR_RED + "Nice try. No null names allowed");
+                if(username.length() > 20)
+                    out.print(SET_TEXT_COLOR_RED + "Sorry. That username is too long");
+                out.print(SET_TEXT_COLOR_YELLOW + "Username: " + SET_TEXT_COLOR_WHITE);
+                username = scanner.nextLine();
+            }
             out.print(SET_TEXT_COLOR_YELLOW + "Password: " + SET_TEXT_COLOR_WHITE);
             String password = scanner.nextLine();
             UserData user = new UserData(username, password, email);
@@ -148,6 +159,7 @@ public class PreLoginClient
                 throw ex;
             }
         }
+        out.println(RESET_TEXT);
     }
 }
 

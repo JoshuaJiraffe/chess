@@ -14,9 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.rmi.ServerException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ServerFacade
 {
@@ -48,7 +46,7 @@ public class ServerFacade
     public Collection<GameData> listGames(String authToken) throws ServerException
     {
         var path = "/game";
-        record listGameResponse(Set<GameData> games) {
+        record listGameResponse(ArrayList<GameData> games) {
         }
         var response = this.makeRequest("GET", path, authToken, null, listGameResponse.class);
         return response.games();
@@ -60,10 +58,13 @@ public class ServerFacade
         return this.makeRequest("POST", path, authToken, Map.of("gameName", gameName), GameData.class);
     }
 
-    public GameData joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws ServerException
+    public void joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws ServerException
     {
         var path = "/game";
-        return this.makeRequest("PUT", path, authToken, Map.of("playerColor", playerColor, "gameID", gameID), GameData.class);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("playerColor", playerColor);
+        body.put("gameID", gameID);
+        this.makeRequest("PUT", path, authToken, body, Object.class);
     }
 
 

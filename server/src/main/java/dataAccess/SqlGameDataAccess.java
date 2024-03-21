@@ -36,7 +36,7 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
         }
 
