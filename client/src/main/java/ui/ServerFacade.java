@@ -24,6 +24,12 @@ public class ServerFacade
         serverURL = url;
     }
 
+    public void clear() throws ServerException
+    {
+        var path = "/db";
+        this.makeRequest("DELETE", path, null, null, Object.class);
+    }
+
     public AuthData register(UserData user) throws ServerException
     {
         var path = "/user";
@@ -52,10 +58,11 @@ public class ServerFacade
         return response.games();
     }
 
-    public GameData createGame(String authToken, String gameName) throws ServerException
+    public int createGame(String authToken, String gameName) throws ServerException
     {
         var path = "/game";
-        return this.makeRequest("POST", path, authToken, Map.of("gameName", gameName), GameData.class);
+        var response = this.makeRequest("POST", path, authToken, Map.of("gameName", gameName), GameData.class);
+        return response.gameID();
     }
 
     public void joinGame(String authToken, ChessGame.TeamColor playerColor, int gameID) throws ServerException

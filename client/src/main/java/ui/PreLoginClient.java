@@ -67,7 +67,7 @@ public class PreLoginClient
                 default -> help();
             };
         } catch (ServerException ex) {
-            System.out.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + ex.getMessage());
+            out.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + ex.getMessage() + RESET_TEXT);
         }
         return quitting;
     }

@@ -110,12 +110,12 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
                         }
                         GameData newGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
                         executeUpdate(updateStatement, whiteUsername, blackUsername, new Gson().toJson(newGame), gameID);
-                        var pps = conn.prepareStatement("SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?");
-                        pps.setInt(1, gameID);
-                        var rrs = pps.executeQuery();
-                        rrs.next();
-                        String white = rs.getString("whiteUsername");
-                        String black = rs.getString("blackUsername");
+//                        var pps = conn.prepareStatement("SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?");
+//                        pps.setInt(1, gameID);
+//                        var rrs = pps.executeQuery();
+//                        rrs.next();
+//                        String white = rs.getString("whiteUsername");
+//                        String black = rs.getString("blackUsername");
                         return newGame;
                     }
                     else

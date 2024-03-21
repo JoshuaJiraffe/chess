@@ -74,7 +74,7 @@ public class PostLoginClient
                 default -> help();
             };
         } catch (ServerException ex) {
-            System.out.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + ex.getMessage());
+            System.out.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + ex.getMessage() + RESET_TEXT);
         }
         return quitting;
     }
