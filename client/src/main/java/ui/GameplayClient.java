@@ -66,6 +66,7 @@ public class GameplayClient
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             switch (cmd) {
                 case "move" -> makeMove();
+                case "quit" -> quitting = true;
                 default -> help();
             };
         } catch (ServerException ex) {

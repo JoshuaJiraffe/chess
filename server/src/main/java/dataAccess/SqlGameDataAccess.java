@@ -7,10 +7,11 @@ import model.GameData;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.UUID;
 
 public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
 {
-    private int nextID = 101;
+    private int nextID = UUID.randomUUID().hashCode();
     public SqlGameDataAccess() throws DataAccessException
     {
         super();
@@ -41,7 +42,8 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
         }
 
         GameData game = new GameData(nextID, null, null, gameName, new ChessGame());
-        nextID += ((int)(Math.random()*9) + 1);
+//        nextID += ((int)(Math.random()*9) + 1);
+        nextID = UUID.randomUUID().hashCode();
         var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, jsonGame, json) VALUES (?, ?, ?, ?, ?, ?)";
         var json = new Gson().toJson(game);
         var jsonGame = new Gson().toJson(game.game());

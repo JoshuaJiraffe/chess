@@ -4,6 +4,8 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
 
+import java.rmi.ServerException;
+
 
 public class ServerFacadeTests {
 
@@ -27,6 +29,73 @@ public class ServerFacadeTests {
     @Test
     public void sampleTest() {
         Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void registerSuccess() throws ServerException
+    {
+
+    }
+
+    @Test
+    public void registerFail() throws ServerException
+    {
+
+    }
+
+    @Test
+    public void loginSuccess() throws ServerException
+    {
+
+    }
+    @Test
+    public void loginFail() throws ServerException
+    {
+
+    }
+
+    @Test
+    public void logoutSuccess() throws ServerException
+    {
+
+    }
+    @Test
+    public void logoutFail() throws ServerException
+    {
+
+    }
+
+    @Test
+    public void listGamesSuccess() throws ServerException
+    {
+
+    }
+    @Test
+    public void listGamesFail() throws ServerException
+    {
+
+    }
+
+    @Test
+    public void createGameSuccess() throws ServerException
+    {
+
+    }
+    @Test
+    public void createGameFail() throws ServerException
+    {
+
+    }
+
+    @Test
+    public void joinGameSuccess() throws ServerException
+    {
+
+    }
+    @Test
+    public void joinGameFail() throws ServerException
+    {
+
     }
 
 }
