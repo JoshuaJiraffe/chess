@@ -30,7 +30,6 @@ public class Server {
             GameDataAccess gameDAO = new SqlGameDataAccess();
             UserDataAccess userDAO = new SqlUserDataAccess();
             AuthDataAccess authDAO = new SqlAuthDataAccess();
-            AuthDataAccess authyDao = new SqlAuthDataAccess();
 //            GameDataAccess gameDAO = new MemGameDataAccess();
 //            UserDataAccess userDAO = new MemUserDataAccess();
 //            AuthDataAccess authDAO = new MemAuthDataAccess();

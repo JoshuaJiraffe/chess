@@ -39,10 +39,10 @@ public class ServerFacade
 
     }
 
-    public boolean logout(String authToken) throws ServerException
+    public void logout(String authToken) throws ServerException
     {
         var path = "/session";
-        return this.makeRequest("DELETE", path, null, Map.of("authorization", authToken), boolean.class);
+        this.makeRequest("DELETE", path, authToken, null, Object.class);
     }
 
     public Collection<GameData> listGames(String authToken) throws ServerException
