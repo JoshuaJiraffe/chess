@@ -1,7 +1,6 @@
 package clientTests;
 
 import chess.ChessGame;
-import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;

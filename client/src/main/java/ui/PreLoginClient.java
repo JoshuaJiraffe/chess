@@ -27,9 +27,7 @@ public class PreLoginClient
 
     public void run()
     {
-        out.println(ERASE_SCREEN);
-        out.println(RESET_TEXT);
-        out.println(SET_BG_COLOR_DARK_GREY);
+        out.println(ERASE_SCREEN + RESET_TEXT + SET_BG_COLOR_DARK_GREY);
         out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + WHITE_QUEEN + "Welcome to Jiraffe's amazing chess game. Ready to lose?" + WHITE_QUEEN);
         out.println(RESET_TEXT);
         boolean quit = false;
