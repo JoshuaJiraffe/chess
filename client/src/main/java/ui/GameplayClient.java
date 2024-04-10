@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import model.AuthData;
 
 import java.io.PrintStream;
@@ -80,7 +77,22 @@ public class GameplayClient
         out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_BOLD + "Here's how to play:");
     }
 
+    private void redrawBoard() throws ServerException
+    {
+
+    }
+
     private void makeMove() throws ServerException
+    {
+        ChessMove move;
+    }
+
+    private void resign() throws ServerException
+    {
+
+    }
+
+    private void highlightMoves(ChessPosition position) throws ServerException
     {
 
     }
@@ -122,6 +134,16 @@ public class GameplayClient
         out.println(SET_BG_COLOR_DARK_GREY);
         out.println();
 
+
+    }
+
+    private void printBoardWhite()
+    {
+
+    }
+
+    private void printBoardBlack()
+    {
 
     }
     private void boardHelper(int r, ChessBoard board)

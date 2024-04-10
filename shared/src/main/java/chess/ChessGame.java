@@ -13,9 +13,11 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor turn;
     private ChessBoard bored;
+    private boolean gameOver;
     public ChessGame() {
         turn = TeamColor.WHITE;
         bored = new ChessBoard();
+        gameOver = false;
     }
 
     /**
@@ -40,6 +42,16 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    public boolean isGameOver()
+    {
+        return gameOver;
+    }
+
+    public void endGame()
+    {
+        this.gameOver = true;
     }
 
     /**
@@ -248,12 +260,12 @@ public class ChessGame {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessGame chessGame = (ChessGame) o;
-        return turn == chessGame.turn && getBoard().equals(chessGame.getBoard());
+        return turn == chessGame.turn && getBoard().equals(chessGame.getBoard())  && gameOver == chessGame.isGameOver();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(turn, bored);
+        return Objects.hash(turn, bored, gameOver);
     }
 
     @Override
