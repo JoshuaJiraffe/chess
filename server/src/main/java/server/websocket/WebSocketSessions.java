@@ -9,37 +9,39 @@ import org.eclipse.jetty.websocket.api.Session;
 
 public class WebSocketSessions
 {
-    public ConcurrentHashMap<Integer, HashMap<AuthData, Session>> sessions = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<Integer, HashMap<String, Session>> sessions = new ConcurrentHashMap<>();
 
-    public void addSessionToGame(int gameID, AuthData authToken, Session session)
+    public void addSessionToGame(int gameID, String authToken, Session session)
     {
         sessions.get(gameID).put(authToken, session);
     }
 
-    public void removeSessionFromGame(int gameID, AuthData authToken, Session session)
+    public void removeSessionFromGame(int gameID, String authToken, Session session)
     {
         sessions.get(gameID).remove(authToken);
+        session.close();
     }
 
     public void removeSession(Session session)
     {
-        for (Map.Entry<Integer, HashMap<AuthData, Session>> entry : sessions.entrySet())
+        for (Map.Entry<Integer, HashMap<String, Session>> entry : sessions.entrySet())
         {
-            HashMap<AuthData, Session> innerMap = entry.getValue();
+            HashMap<String, Session> innerMap = entry.getValue();
             // Iterate over the inner HashMap associated with each key
-            for (Map.Entry<AuthData, Session> innerEntry : innerMap.entrySet())
+            for (Map.Entry<String, Session> innerEntry : innerMap.entrySet())
             {
                 if (innerEntry.getValue().equals(session))
                 {
                     // Found the session, remove it from the inner HashMap
                     innerMap.remove(innerEntry.getKey());
+                    session.close();
                     return; // Exit after removing the session
                 }
             }
         }
     }
 
-    public Map<AuthData, Session> getSessionsForGame(int gameID)
+    public HashMap<String, Session> getSessionsForGame(int gameID)
     {
         return sessions.get(gameID);
     }

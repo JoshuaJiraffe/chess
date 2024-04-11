@@ -105,7 +105,13 @@ public class MemGameDataAccess implements GameDataAccess
     }
 
     @Override
-    public GameData updateGame(int gameID, ChessGame updatedGame) throws DataAccessException
+    public GameData updateGame(int gameID, ChessGame updatedGame, ChessGame.TeamColor colorGone) throws DataAccessException
+    {
+        return null;
+    }
+
+    @Override
+    public GameData getGame(int gameID) throws DataAccessException
     {
         return null;
     }

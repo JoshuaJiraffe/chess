@@ -168,16 +168,8 @@ public class GameplayClient
             if((piece.getPieceType() == ChessPiece.PieceType.PAWN) && (r == 8 || r == 1))
                 promotion = getPromotionPiece();
             ChessMove move = new ChessMove(start, end, promotion);
-            try
-            {
-                game.makeMove(move);
-                redrawBoard(game);
-            } catch(InvalidMoveException e){
-                out.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + e.getMessage());
-                return;
-            }
 //          Do Websocket stuff
-            ws.makeMove(auth.authToken(), gameID, move);
+            ws.makeMove(auth.authToken(), gameID, auth.username(), move);
 
         }
         out.println(RESET_TEXT);
@@ -265,7 +257,7 @@ public class GameplayClient
         else
             game.setWinner(ChessGame.TeamColor.WHITE);
         //Do Websocket stuff
-        ws.resignGame(auth.authToken(), gameID);
+        ws.resignGame(auth.authToken(), gameID, auth.username());
         out.println(RESET_TEXT);
     }
 
@@ -273,7 +265,7 @@ public class GameplayClient
     {
         out.println(RESET_TEXT);
         //Do Websocket stuff
-        ws.leaveGame(auth.authToken(), gameID);
+        ws.leaveGame(auth.authToken(), gameID, auth.username());
 
         out.println(ERASE_SCREEN);
         out.println(RESET_TEXT);

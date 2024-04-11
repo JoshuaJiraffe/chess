@@ -38,8 +38,13 @@ public class GameService
         return gameAccess.joinGame(auth.username(), playerColor, gameID);
     }
 
-    public GameData updateGame(int gameID, ChessGame updatedGame) throws DataAccessException
+    public GameData updateGame(int gameID, ChessGame updatedGame, ChessGame.TeamColor colorGone) throws DataAccessException
     {
-        return gameAccess.updateGame(gameID, updatedGame);
+        return gameAccess.updateGame(gameID, updatedGame, colorGone);
+    }
+
+    public GameData getGame(int gameID) throws DataAccessException
+    {
+        return gameAccess.getGame(gameID);
     }
 }

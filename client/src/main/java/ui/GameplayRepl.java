@@ -41,7 +41,7 @@ public class GameplayRepl implements GameHandler
         this.out = out;
         ws = new WebSocketFacade(serverURL, this);
         if(color == null)
-            ws.joinObserver(auth.authToken(), gameID);
+            ws.joinObserver(auth.authToken(), gameID, auth.username());
         else
             ws.joinPlayer(auth.authToken(), gameID, playerColor);
         this.gameClient = new GameplayClient(server, serverURL, auth, gameID, color, scanner, out, this, ws);

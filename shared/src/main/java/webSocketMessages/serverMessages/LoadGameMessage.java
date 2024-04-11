@@ -5,11 +5,13 @@ import chess.ChessGame;
 public class LoadGameMessage extends ServerMessage
 {
     private final ChessGame game;
+    private final String message;
 
-    public LoadGameMessage(ServerMessageType type, ChessGame game)
+    public LoadGameMessage(ChessGame game, String message)
     {
-        super(type);
+        super(ServerMessageType.LOAD_GAME);
         this.game = game;
+        this.message = message;
     }
 
     public ChessGame getGame()

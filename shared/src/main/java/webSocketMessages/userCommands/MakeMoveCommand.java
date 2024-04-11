@@ -7,12 +7,13 @@ public class MakeMoveCommand extends UserGameCommand
 {
     private final int gameID;
     private final ChessMove move;
-
-    public MakeMoveCommand(String authToken, int gameID, ChessMove move)
+    private final String user;
+    public MakeMoveCommand(String authToken, int gameID, String user, ChessMove move)
     {
         super(authToken);
         this.gameID = gameID;
         this.move = move;
+        this.user = user;
         this.commandType = CommandType.MAKE_MOVE;
     }
 
@@ -24,5 +25,10 @@ public class MakeMoveCommand extends UserGameCommand
     public ChessMove getMove()
     {
         return move;
+    }
+
+    public String getUser()
+    {
+        return user;
     }
 }

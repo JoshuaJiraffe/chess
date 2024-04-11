@@ -18,6 +18,7 @@ public class ChessGame {
     public ChessGame() {
         turn = TeamColor.WHITE;
         bored = new ChessBoard();
+        bored.resetBoard();
         gameOver = false;
         winner = null;
     }
@@ -145,6 +146,8 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece movingPiece;
+        if(gameOver)
+            throw new InvalidMoveException("The game is over. No more moves can be made");
         if(move.getPromotionPiece() == null)
            movingPiece = bored.getPiece(start);
         else

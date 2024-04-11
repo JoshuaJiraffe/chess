@@ -148,10 +148,39 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
             throw new DataAccessException(e.getMessage(), 500);
         }
     }
-
-    public GameData updateGame(int gameID, ChessGame updatedGame) throws DataAccessException
+    @Override
+    public GameData getGame(int gameID) throws DataAccessException
     {
-        var updateStatement = "UPDATE game SET jsonGame=?, json=? WHERE gameID=?";
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT json, jsonGame, whiteUsername, blackUsername FROM game WHERE gameID=?";
+            try(var ps = conn.prepareStatement(statement)){
+                ps.setInt(1, gameID);
+                try(var rs = ps.executeQuery())
+                {
+                    if(rs.next())
+                    {
+                        String json = rs.getString("json");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        return game;
+                    }
+                    else
+                    {
+                        throw new DataAccessException("Error: bad request", 400);
+                    }
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
+        }
+    }
+
+
+    @Override
+    public GameData updateGame(int gameID, ChessGame updatedGame, ChessGame.TeamColor colorGone) throws DataAccessException
+    {
+        var updateStatement = "UPDATE game SET jsonGame=?, json=?, whiteUsername=?, blackUsername=? WHERE gameID=?";
         try(var conn = DatabaseManager.getConnection()){
             var statement = "SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?";
             try(var ps = conn.prepareStatement(statement)){
@@ -162,8 +191,15 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
                     {
                         String json = rs.getString("json");
                         GameData game = new Gson().fromJson(json, GameData.class);
-                        GameData newGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), updatedGame);
-                        executeUpdate(updateStatement, new Gson().toJson(newGame), new Gson().toJson(updatedGame), gameID);
+                        String whiteUsername = game.whiteUsername();
+                        String blackUsername = game.blackUsername();
+                        if(colorGone == ChessGame.TeamColor.WHITE)
+                            whiteUsername = null;
+                        if(colorGone == ChessGame.TeamColor.BLACK)
+                            blackUsername = null;
+                        GameData newGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), updatedGame);
+
+                        executeUpdate(updateStatement, new Gson().toJson(updatedGame), new Gson().toJson(newGame), whiteUsername, blackUsername, gameID);
                         return newGame;
                     }
                     else
