@@ -3,7 +3,9 @@ package websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
+import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
@@ -39,9 +41,9 @@ public class WebSocketFacade extends Endpoint
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                     switch (serverMessage.getServerMessageType()) {
-                        case NOTIFICATION -> gameHand.printMessage(serverMessage);
-                        case ERROR -> gameHand.printMessage(serverMessage);
-                        case LOAD_GAME -> gameHand.updateGame((LoadGameMessage) serverMessage);
+                        case NOTIFICATION -> gameHand.printMessage(new Gson().fromJson(message, NotificationMessage.class));
+                        case ERROR -> gameHand.printMessage(new Gson().fromJson(message, ErrorMessage.class));
+                        case LOAD_GAME -> gameHand.updateGame(new Gson().fromJson(message, LoadGameMessage.class));
                     }
                 }
             });
@@ -54,6 +56,7 @@ public class WebSocketFacade extends Endpoint
     {
         try {
             var command = new JoinPlayerCommand(authToken, gameID, playerColor);
+            System.out.println("we in client web socket facade");
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ServerException(ex.getMessage());

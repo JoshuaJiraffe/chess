@@ -312,14 +312,14 @@ public class GameplayClient
 
     private void printBoard(Collection<ChessPosition> highlights)
     {
-        ChessBoard fakeBoard = new ChessBoard();
-        fakeBoard.resetBoard();
+//        ChessBoard fakeBoard = new ChessBoard();
+//        fakeBoard.resetBoard();
         out.print(RESET_ALL);
         out.println(SET_BG_COLOR_DARK_GREEN + EMPTY.repeat(10) + SET_BG_COLOR_DARK_GREY);
         if(observer || playerColor == ChessGame.TeamColor.WHITE)
-            printBoardWhite(fakeBoard, highlights);
+            printBoardWhite(game.getBoard(), highlights);
         else
-            printBoardBlack(fakeBoard, highlights);
+            printBoardBlack(game.getBoard(), highlights);
         out.print(EMPTY);
         out.println(SET_BG_COLOR_DARK_GREY);
         out.println(RESET_TEXT);

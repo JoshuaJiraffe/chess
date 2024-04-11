@@ -34,29 +34,32 @@ public class WebSocketHandler
     public void onConnect(Session session) {}
 
     @OnWebSocketClose
-    public void onClose(Session session) {}
+    public void onClose(Session session, int num, String str) {}
 
     @OnWebSocketError
     public void onError(Throwable throwable) {}
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String str) throws DataAccessException, IOException
+    public void onMessage(Session session, String str) throws IOException
     {
         UserGameCommand command = new Gson().fromJson(str, UserGameCommand.class);
+        System.out.println("In websockethandler");
         switch (command.getCommandType())
         {
-            case JOIN_PLAYER -> joinPlayer((JoinPlayerCommand) command);
-            case JOIN_OBSERVER -> joinObserver((JoinObserverCommand) command);
-            case MAKE_MOVE -> makeMove((MakeMoveCommand) command);
-            case LEAVE -> leaveGame((LeaveCommand) command);
-            case RESIGN -> resignGame((ResignCommand) command);
+            case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(str, JoinPlayerCommand.class), session);
+            case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(str, JoinObserverCommand.class));
+            case MAKE_MOVE -> makeMove(new Gson().fromJson(str, MakeMoveCommand.class));
+            case LEAVE -> leaveGame(new Gson().fromJson(str, LeaveCommand.class));
+            case RESIGN -> resignGame(new Gson().fromJson(str, ResignCommand.class));
         }
     }
 
-    private void joinPlayer(JoinPlayerCommand cmd) throws IOException
+    private void joinPlayer(JoinPlayerCommand cmd, Session session) throws IOException
     {
+        System.out.println("In joinPlayer");
         try {
             GameData gameData = gameService.getGame(cmd.getGameID());
+            sessions.addSessionToGame(cmd.getGameID(), cmd.getAuthString(), session);
             String sendMessage = "You have successfully joined the game \'" + gameData.gameName() + "\'";
             sendMessage(cmd.getGameID(), new LoadGameMessage(gameData.game(), sendMessage), cmd.getAuthString());
             String username;

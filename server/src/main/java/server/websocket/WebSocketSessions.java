@@ -13,6 +13,8 @@ public class WebSocketSessions
 
     public void addSessionToGame(int gameID, String authToken, Session session)
     {
+        if(!sessions.containsKey(gameID))
+            sessions.put(gameID, new HashMap<String, Session>());
         sessions.get(gameID).put(authToken, session);
     }
 
