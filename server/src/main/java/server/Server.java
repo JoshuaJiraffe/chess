@@ -22,7 +22,7 @@ public class Server {
 
     }
 
-    public Server run(int desiredPort){
+    public int run(int desiredPort){
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
@@ -62,7 +62,7 @@ public class Server {
         Spark.exception(DataAccessException.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
-        return this;
+        return this.port();
     }
     private void exceptionHandler(DataAccessException e, Request req, Response res )
     {

@@ -50,30 +50,35 @@ public class GameplayClient
         this.gameHand = new GameHandler();
         ws = new WebSocketFacade(serverURL, gameHand);
         if(color == null)
+        {
             observer = true;
+            ws.joinObserver();
+        }
         else
+        {
             observer = false;
+            ws.joinPlayer();
+        }
     }
 
     public void run()
     {
         out.println(ERASE_SCREEN + RESET_TEXT);
         out.println(SET_BG_COLOR_DARK_GREY);
-        out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + BLACK_PAWN + "Let the games begin!" + BLACK_PAWN);
+        out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + BLACK_PAWN + "Let the game begin!" + BLACK_PAWN);
         out.println(RESET_TEXT);
-
-        boolean quit = false;
-        while(!quit)
+        try
         {
-            try{
-                printBoard();
+            printBoard();
+            boolean quit = false;
+            while(!quit)
+            {
                 String line = scanner.nextLine();
                 quit = this.eval(line);
-
-            } catch (Throwable e) {
-                var msg = e.toString();
-                out.println(msg);
             }
+        } catch (Throwable e) {
+            var msg = e.toString();
+            out.println(msg);
         }
         out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_ITALIC + "You lost. Or maybe you won. Who knows?" + RESET_TEXT);
     }
@@ -89,7 +94,8 @@ public class GameplayClient
                 case "move" -> makeMove();
                 case "redraw" -> printBoard();
                 case "resign" -> resign();
-                case "leave" -> quitting = true;
+                case "leave" -> { quitting = true;
+                    leave(); }
                 case "highlight" -> highlightMoves();
                 default -> help();
             };
@@ -117,7 +123,12 @@ public class GameplayClient
     private void makeMove() throws ServerException
     {
         out.println(RESET_TEXT);
-        if(game.getTeamTurn() != playerColor)
+        if(observer)
+        {
+            help();
+            return;
+        }
+        else if(game.getTeamTurn() != playerColor)
             out.print(SET_TEXT_COLOR_RED + "It's not your turn. Learn some patience");
         else
         {
@@ -226,12 +237,21 @@ public class GameplayClient
 
     private void resign() throws ServerException
     {
+        out.println(RESET_TEXT);
+        if(observer)
+        {
+            help();
+            return;
+        }
 
+        //Do Websocket stuff
     }
 
     private void leave() throws ServerException
     {
 
+
+        //Do Websocket stuff
     }
 
     private Collection<ChessPosition> highlightMoves() throws ServerException
