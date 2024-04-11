@@ -88,10 +88,10 @@ public class WebSocketFacade extends Endpoint
             throw new ServerException(ex.getMessage());
         }
     }
-    public void resignGame(String authToken, int gameID, String user) throws ServerException
+    public void resignGame(String authToken, int gameID, String user, ChessGame.TeamColor color) throws ServerException
     {
         try {
-            var command = new ResignCommand(authToken, gameID, user);
+            var command = new ResignCommand(authToken, gameID, user, color);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ServerException(ex.getMessage());

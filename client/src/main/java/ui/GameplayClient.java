@@ -242,7 +242,7 @@ public class GameplayClient
         else
             game.setWinner(ChessGame.TeamColor.WHITE);
         //Do Websocket stuff
-        ws.resignGame(auth.authToken(), gameID, auth.username());
+        ws.resignGame(auth.authToken(), gameID, auth.username(), playerColor);
         out.println(RESET_TEXT);
     }
 

@@ -44,6 +44,7 @@ public class PostLoginClient
             String line = scanner.nextLine();
             try{
                 quit = this.eval(line);
+                out.println();
 
             } catch (Throwable e) {
                 var msg = e.toString();
