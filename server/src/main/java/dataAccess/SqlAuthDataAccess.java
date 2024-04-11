@@ -79,19 +79,6 @@ public class SqlAuthDataAccess extends SqlDataAccess implements AuthDataAccess
     {
         int size = 0;
         var statement = "SELECT COUNT(*) FROM auth";
-        try(var conn = DatabaseManager.getConnection())
-        {
-            try (var ps = conn.prepareStatement(statement))
-            {
-                try (var rs = ps.executeQuery())
-                {
-                    if (rs.next())
-                        size = rs.getInt(1);
-                }
-            }
-        }catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
-        }
-        return size;
+        return SqlDataAccess.getSize(size, statement);
     }
 }

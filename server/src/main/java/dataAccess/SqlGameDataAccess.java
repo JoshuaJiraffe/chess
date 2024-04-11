@@ -110,12 +110,6 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
                         }
                         GameData newGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
                         executeUpdate(updateStatement, whiteUsername, blackUsername, new Gson().toJson(newGame), gameID);
-//                        var pps = conn.prepareStatement("SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?");
-//                        pps.setInt(1, gameID);
-//                        var rrs = pps.executeQuery();
-//                        rrs.next();
-//                        String white = rs.getString("whiteUsername");
-//                        String black = rs.getString("blackUsername");
                         return newGame;
                     }
                     else
@@ -221,19 +215,8 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
     {
         int size = 0;
         var statement = "SELECT COUNT(*) FROM game";
-        try(var conn = DatabaseManager.getConnection())
-        {
-            try (var ps = conn.prepareStatement(statement))
-            {
-                try (var rs = ps.executeQuery())
-                {
-                    if (rs.next())
-                        size = rs.getInt(1);
-                }
-            }
-        }catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
-        }
-        return size;
+        return SqlDataAccess.getSize(size, statement);
     }
+
+
 }

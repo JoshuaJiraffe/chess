@@ -52,9 +52,9 @@ public class ServerFacade
     public Collection<GameData> listGames(String authToken) throws ServerException
     {
         var path = "/game";
-        record listGameResponse(ArrayList<GameData> games) {
+        record ListGameResponse(ArrayList<GameData> games) {
         }
-        var response = this.makeRequest("GET", path, authToken, null, listGameResponse.class);
+        var response = this.makeRequest("GET", path, authToken, null, ListGameResponse.class);
         return response.games();
     }
 

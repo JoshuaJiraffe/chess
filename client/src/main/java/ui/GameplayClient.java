@@ -149,7 +149,9 @@ public class GameplayClient
             {
                 out.println(SET_TEXT_COLOR_RED + "That's not a piece you can move");
                 out.println(SET_TEXT_COLOR_YELLOW + "What is the location of the piece you want to move?");
-                start = new ChessPosition(getRow(), getColumn());
+                c = getColumn();
+                r = getRow();
+                start = new ChessPosition(r, c);
                 piece = board.getPiece(start);
             }
             out.println(SET_TEXT_COLOR_MAGENTA + "You have chosen to move your " + piece.getPieceType().toString().toLowerCase() + ". Here are your valid moves");
@@ -157,12 +159,16 @@ public class GameplayClient
 //            Get ending location
             HashSet<ChessPosition> endPositions = new HashSet<>(highlight(start));
             out.println(SET_TEXT_COLOR_YELLOW + "Where do you want to move to?");
-            ChessPosition end = new ChessPosition(getRow(), getColumn());
+            int endc = getColumn();
+            int endr = getRow();
+            ChessPosition end = new ChessPosition(endr, endc);
             while(!endPositions.contains(end))
             {
                 out.println(SET_TEXT_COLOR_RED + "That is not a valid move! Cheater");
                 out.println(SET_TEXT_COLOR_YELLOW + "Where do you want to move to?");
-                end = new ChessPosition(getRow(), getColumn());
+                endc = getColumn();
+                endr = getRow();
+                end = new ChessPosition(endr, endc);
             }
             ChessPiece.PieceType promotion = null;
             if((piece.getPieceType() == ChessPiece.PieceType.PAWN) && (r == 8 || r == 1))
@@ -285,9 +291,11 @@ public class GameplayClient
             if(piece == null)
                 out.println(SET_TEXT_COLOR_RED + "There is no piece there");
             else
-                out.println(SET_TEXT_COLOR_RED + "It's not " + piece.getTeamColor() + "'s turn");
+                out.println(SET_TEXT_COLOR_RED + "It's not " + piece.getTeamColor().toString().toLowerCase() + "'s turn");
             out.println(SET_TEXT_COLOR_YELLOW + "What is the location of the piece you want to see the valid moves for?");
-            start = new ChessPosition(getRow(), getColumn());
+            c = getColumn();
+            r = getRow();
+            start = new ChessPosition(r, c);
             piece = board.getPiece(start);
         }
         return highlight(start);

@@ -22,8 +22,6 @@ public class WebSocketFacade extends Endpoint
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
-    public void onClose() {}
-    public void onError() {}
 
     public WebSocketFacade(String url, GameHandler gameHandler) throws ServerException
     {

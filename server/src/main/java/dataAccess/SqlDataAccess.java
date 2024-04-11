@@ -41,50 +41,7 @@ public class SqlDataAccess
         }
     }
 
-//    protected ResultSet executeQuery(String statement, Object... params) throws DataAccessException
-//    {
-//        try (var conn = DatabaseManager.getConnection()) {
-//            try (var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
-//                for (var i = 0; i < params.length; i++) {
-//                    var param = params[i];
-//                    switch (param)
-//                    {
-//                        case String p -> ps.setString(i + 1, p);
-//                        case Integer p -> ps.setInt(i + 1, p);
-//                        case ChessGame p -> ps.setString(i + 1, p.toString());
-//                        case null -> ps.setNull(i + 1, NULL);
-//                        default ->
-//                        {
-//                        }
-//                    }
-//                }
-//                return ps.executeQuery();
-//            }
-//        } catch (SQLException e) {
-//            throw new DataAccessException(String.format("unable to query database: %s, %s", statement, e.getMessage()), 500);
-//        }
-//    }
 
-//    protected int getSize(String database) throws DataAccessException
-//    {
-//        int size = 0;
-//        var statement = "SELECT COUNT(*) FROM ?";
-//        try(var conn = DatabaseManager.getConnection())
-//        {
-//            try (var ps = conn.prepareStatement(statement))
-//            {
-//                ps.setString(1, database);
-//                try (var rs = ps.executeQuery())
-//                {
-//                    if (rs.next())
-//                        size = rs.getInt(1);
-//                }
-//            }
-//        }catch (Exception e) {
-//        throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
-//    }
-//        return size;
-//    }
 
     private final String[] createStatements = {
             """
@@ -130,5 +87,22 @@ public class SqlDataAccess
         } catch (SQLException ex) {
             throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()), 500);
         }
+    }
+    static int getSize(int size, String statement) throws DataAccessException
+    {
+        try(var conn = DatabaseManager.getConnection())
+        {
+            try (var ps = conn.prepareStatement(statement))
+            {
+                try (var rs = ps.executeQuery())
+                {
+                    if (rs.next())
+                        size = rs.getInt(1);
+                }
+            }
+        }catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
+        }
+        return size;
     }
 }
