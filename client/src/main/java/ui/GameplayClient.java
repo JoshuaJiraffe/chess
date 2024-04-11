@@ -2,6 +2,8 @@ package ui;
 
 import chess.*;
 import model.AuthData;
+import webSocketMessages.serverMessages.LoadGameMessage;
+import webSocketMessages.serverMessages.ServerMessage;
 import websocket.GameHandler;
 import websocket.WebSocketFacade;
 
@@ -38,7 +40,7 @@ public class GameplayClient
             'h', 8
             );
 
-    public GameplayClient(ServerFacade server, String serverURL, AuthData auth, int gameID, ChessGame.TeamColor color, Scanner scanner, PrintStream out) throws ServerException
+    public GameplayClient(ServerFacade server, String serverURL, AuthData auth, int gameID, ChessGame.TeamColor color, Scanner scanner, PrintStream out, GameHandler gameHandler, WebSocketFacade ws) throws ServerException
     {
         this.server = server;
         this.serverUrl = serverURL;
@@ -47,41 +49,39 @@ public class GameplayClient
         this.playerColor = color;
         this.scanner = scanner;
         this.out = out;
-        this.gameHand = new GameHandler();
-        ws = new WebSocketFacade(serverURL, gameHand);
+        this.gameHand = gameHandler;
+        this.ws = ws;
         if(color == null)
         {
             observer = true;
-            ws.joinObserver();
         }
         else
         {
             observer = false;
-            ws.joinPlayer();
         }
     }
 
-    public void run()
-    {
-        out.println(ERASE_SCREEN + RESET_TEXT);
-        out.println(SET_BG_COLOR_DARK_GREY);
-        out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + BLACK_PAWN + "Let the game begin!" + BLACK_PAWN);
-        out.println(RESET_TEXT);
-        try
-        {
-            redrawBoard();
-            boolean quit = false;
-            while(!quit)
-            {
-                String line = scanner.nextLine();
-                quit = this.eval(line);
-            }
-        } catch (Throwable e) {
-            var msg = e.toString();
-            out.println(msg);
-        }
-        out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_ITALIC + "You lost. Or maybe you won. Who knows?" + RESET_TEXT);
-    }
+//    public void run()
+//    {
+//        out.println(ERASE_SCREEN + RESET_TEXT);
+//        out.println(SET_BG_COLOR_DARK_GREY);
+//        out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + BLACK_PAWN + "Let the game begin!" + BLACK_PAWN);
+//        out.println(RESET_TEXT);
+//        try
+//        {
+//            redrawBoard(game);
+//            boolean quit = false;
+//            while(!quit)
+//            {
+//                String line = scanner.nextLine();
+//                quit = this.eval(line);
+//            }
+//        } catch (Throwable e) {
+//            var msg = e.toString();
+//            out.println(msg);
+//        }
+//        out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_ITALIC + "You lost. Or maybe you won. Who knows?" + RESET_TEXT);
+//    }
 
     public boolean eval(String input) throws ServerException
     {
@@ -92,10 +92,13 @@ public class GameplayClient
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             switch (cmd) {
                 case "move" -> makeMove();
-                case "redraw" -> redrawBoard();
+                case "redraw" -> redrawBoard(game);
                 case "resign" -> resign();
-                case "leave" -> { quitting = true;
-                    leave(); }
+                case "leave" ->
+                {
+                    quitting = true;
+                    leave();
+                }
                 case "highlight" -> highlightMoves();
                 default -> help();
             };
@@ -168,13 +171,13 @@ public class GameplayClient
             try
             {
                 game.makeMove(move);
+                redrawBoard(game);
             } catch(InvalidMoveException e){
                 out.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + e.getMessage());
                 return;
             }
-
 //          Do Websocket stuff
-
+            ws.makeMove(auth.authToken(), gameID, move);
 
         }
         out.println(RESET_TEXT);
@@ -262,7 +265,7 @@ public class GameplayClient
         else
             game.setWinner(ChessGame.TeamColor.WHITE);
         //Do Websocket stuff
-
+        ws.resignGame(auth.authToken(), gameID);
         out.println(RESET_TEXT);
     }
 
@@ -270,7 +273,9 @@ public class GameplayClient
     {
         out.println(RESET_TEXT);
         //Do Websocket stuff
+        ws.leaveGame(auth.authToken(), gameID);
 
+        out.println(ERASE_SCREEN);
         out.println(RESET_TEXT);
     }
 
@@ -307,12 +312,13 @@ public class GameplayClient
         return endingPositions;
     }
 
-    private void redrawBoard() throws ServerException
+    public void redrawBoard(ChessGame newGame)
     {
+        game = newGame;
         printBoard(new HashSet<ChessPosition>());
     }
 
-    private void printBoard(Collection<ChessPosition> highlights) throws ServerException
+    private void printBoard(Collection<ChessPosition> highlights)
     {
         ChessBoard fakeBoard = new ChessBoard();
         fakeBoard.resetBoard();
@@ -386,4 +392,6 @@ public class GameplayClient
         return pieceString;
 
     }
+
+
 }

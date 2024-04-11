@@ -1,8 +1,11 @@
 package websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
+import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -35,7 +38,11 @@ public class WebSocketFacade extends Endpoint
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    gameHand.printMessage(serverMessage);
+                    switch (serverMessage.getServerMessageType()) {
+                        case NOTIFICATION -> gameHand.printMessage(serverMessage);
+                        case ERROR -> gameHand.printMessage(serverMessage);
+                        case LOAD_GAME -> gameHand.updateGame((LoadGameMessage) serverMessage);
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -43,30 +50,51 @@ public class WebSocketFacade extends Endpoint
         }
     }
 
-    public void joinPlayer(String authToken) throws ServerException
+    public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor) throws ServerException
     {
         try {
-            var action = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            var command = new JoinPlayerCommand(authToken, gameID, playerColor);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ServerException(ex.getMessage());
         }
     }
-    public void joinObserver() throws ServerException
+    public void joinObserver(String authToken, int gameID) throws ServerException
     {
-
+        try {
+            var command = new JoinObserverCommand(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ServerException(ex.getMessage());
+        }
     }
-    public void makeMove() throws ServerException
+    public void makeMove(String authToken, int gameID, ChessMove move) throws ServerException
     {
-
+        try {
+            var command = new MakeMoveCommand(authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ServerException(ex.getMessage());
+        }
     }
-    public void leaveGame() throws ServerException
+    public void leaveGame(String authToken, int gameID) throws ServerException
     {
-
+        try {
+            var command = new LeaveCommand(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            this.session.close();
+        } catch (IOException ex) {
+            throw new ServerException(ex.getMessage());
+        }
     }
-    public void resignGame() throws ServerException
+    public void resignGame(String authToken, int gameID) throws ServerException
     {
-
+        try {
+            var command = new ResignCommand(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ServerException(ex.getMessage());
+        }
     }
 
 

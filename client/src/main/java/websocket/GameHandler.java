@@ -1,17 +1,14 @@
 package websocket;
 
 import chess.ChessGame;
+import webSocketMessages.serverMessages.LoadGameMessage;
+import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 
-public class GameHandler
+import java.rmi.ServerException;
+
+public interface GameHandler
 {
-    public void updateGame(ChessGame game)
-    {
-
-    }
-
-    public void printMessage(ServerMessage message)
-    {
-
-    }
+    public void updateGame(LoadGameMessage message);
+    public void printMessage(ServerMessage message);
 }

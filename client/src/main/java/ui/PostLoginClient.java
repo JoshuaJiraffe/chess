@@ -222,7 +222,7 @@ public class PostLoginClient
             server.joinGame(auth.authToken(), teamColor, realID);
             out.println();
             out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_ITALIC + "Joining game " + id);
-            new GameplayClient(server, serverUrl, auth, realID, teamColor, scanner, out).run();
+            new GameplayRepl(server, serverUrl, auth, realID, teamColor, scanner, out).run();
 
         } catch(ServerException ex)
         {
