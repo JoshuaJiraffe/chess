@@ -18,4 +18,9 @@ public class LoadGameMessage extends ServerMessage
     {
         return game;
     }
+
+    public String getMessage()
+    {
+        return message;
+    }
 }

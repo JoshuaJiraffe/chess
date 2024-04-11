@@ -75,7 +75,7 @@ public class GameplayRepl implements GameHandler
     public void updateGame(LoadGameMessage message)
     {
         ChessGame newGame = message.getGame();
-        out.println(SET_TEXT_ITALIC + SET_TEXT_COLOR_GREEN + "Some player performed some move" + RESET_TEXT);
+        out.println(SET_TEXT_ITALIC + SET_TEXT_COLOR_GREEN + message.getMessage() + RESET_TEXT);
         gameClient.redrawBoard(newGame);
 
     }

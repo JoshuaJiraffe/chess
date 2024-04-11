@@ -126,7 +126,7 @@ public class PostLoginClient
                 throw ex;
             }
         }
-        out.println(RESET_TEXT);
+        out.print(RESET_TEXT);
     }
 
     public void listGames() throws ServerException

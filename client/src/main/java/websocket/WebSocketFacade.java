@@ -54,7 +54,6 @@ public class WebSocketFacade extends Endpoint
     {
         try {
             var command = new JoinPlayerCommand(authToken, gameID, playerColor);
-            System.out.println("we in client web socket facade");
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ServerException(ex.getMessage());

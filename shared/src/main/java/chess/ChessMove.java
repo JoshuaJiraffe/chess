@@ -84,6 +84,6 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return "Piece moves from " + start.toString() + " to " + end.toString();
+        return " from " + start.toString() + " to " + end.toString();
     }
 }

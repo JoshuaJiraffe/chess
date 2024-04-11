@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
@@ -73,7 +74,7 @@ public class WebSocketHandler
             }
             String sendMessage = "You have successfully joined the game \'" + gameData.gameName() + "\'";
             sendMessage(cmd.getGameID(), new LoadGameMessage(gameData.game(), sendMessage), cmd.getAuthString());
-            String broadMessage = username + "has joined the game as " + cmd.getPlayerColor().toString().toLowerCase();
+            String broadMessage = username + " has joined the game as " + cmd.getPlayerColor().toString().toLowerCase();
             broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), cmd.getAuthString());
         } catch (DataAccessException ex) {
             sendMessage(cmd.getGameID(), new ErrorMessage("Error " + ex.getMessage()), cmd.getAuthString());
@@ -90,7 +91,7 @@ public class WebSocketHandler
             AuthData authData = gameService.getAuth(cmd.getAuthString());
             String sendMessage = "You have successfully joined the game \'" + gameData.gameName() + "\'";
             sendMessage(cmd.getGameID(), new LoadGameMessage(gameData.game(), sendMessage), cmd.getAuthString());
-            String broadMessage = cmd.getUser() + "has joined the game as an observer";
+            String broadMessage = cmd.getUser() + " has joined the game as an observer";
             broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), cmd.getAuthString());
         } catch (DataAccessException ex) {
             sendMessage(cmd.getGameID(), new ErrorMessage("Error " + ex.getMessage()), cmd.getAuthString());
@@ -126,8 +127,8 @@ public class WebSocketHandler
                 return;
             }
 
-
             ChessGame updatedGame = gameData.game();
+            ChessPiece piece = updatedGame.getBoard().getPiece(cmd.getMove().getStartPosition());
             updatedGame.makeMove(cmd.getMove());
             ChessGame.TeamColor nextTurn = updatedGame.getTeamTurn();
             String nextUser = (nextTurn == ChessGame.TeamColor.WHITE) ? gameData.whiteUsername() : gameData.blackUsername();
@@ -141,7 +142,7 @@ public class WebSocketHandler
             gameService.updateGame(cmd.getGameID(), updatedGame, null);
 
             broadcastMessage(gameData.gameID(), new LoadGameMessage(updatedGame, ""), null);
-            String broadMessage = cmd.getUser() + " played " + cmd.getMove().toString();
+            String broadMessage = cmd.getUser() + " played " + piece.getPieceType().toString().toLowerCase() + cmd.getMove().toString();
             broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), cmd.getAuthString());
 
             if(updatedGame.isGameOver())
@@ -153,7 +154,7 @@ public class WebSocketHandler
                     broadMessage = nextUser + " has been checkmated, which means we have our champion. Congratulations to " + cmd.getUser();
                 broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), null);
             }
-            if(updatedGame.isInCheck(nextTurn))
+            else if(updatedGame.isInCheck(nextTurn))
             {
                 broadMessage = nextUser + " is in check!";
                 broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), null);
