@@ -14,10 +14,12 @@ public class ChessGame {
     private TeamColor turn;
     private ChessBoard bored;
     private boolean gameOver;
+    private TeamColor winner;
     public ChessGame() {
         turn = TeamColor.WHITE;
         bored = new ChessBoard();
         gameOver = false;
+        winner = null;
     }
 
     /**
@@ -52,6 +54,16 @@ public class ChessGame {
     public void endGame()
     {
         this.gameOver = true;
+    }
+
+    public TeamColor getWinner()
+    {
+        return winner;
+    }
+
+    public void setWinner(TeamColor winner)
+    {
+        this.winner = winner;
     }
 
     /**

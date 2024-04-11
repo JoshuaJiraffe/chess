@@ -69,7 +69,7 @@ public class GameplayClient
         out.println(RESET_TEXT);
         try
         {
-            printBoard();
+            redrawBoard();
             boolean quit = false;
             while(!quit)
             {
@@ -92,7 +92,7 @@ public class GameplayClient
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             switch (cmd) {
                 case "move" -> makeMove();
-                case "redraw" -> printBoard();
+                case "redraw" -> redrawBoard();
                 case "resign" -> resign();
                 case "leave" -> { quitting = true;
                     leave(); }
@@ -165,6 +165,13 @@ public class GameplayClient
             if((piece.getPieceType() == ChessPiece.PieceType.PAWN) && (r == 8 || r == 1))
                 promotion = getPromotionPiece();
             ChessMove move = new ChessMove(start, end, promotion);
+            try
+            {
+                game.makeMove(move);
+            } catch(InvalidMoveException e){
+                out.println(SET_TEXT_COLOR_RED + SET_TEXT_ITALIC + e.getMessage());
+                return;
+            }
 
 //          Do Websocket stuff
 
@@ -243,51 +250,89 @@ public class GameplayClient
             help();
             return;
         }
-
+        out.print(SET_TEXT_COLOR_YELLOW + SET_TEXT_BOLD + "Are you sure you want to resign? (yes/no) " + RESET_TEXT + SET_TEXT_COLOR_WHITE);
+        String answer = scanner.nextLine().toLowerCase();
+        if(!answer.equals("yes") && !answer.equals("y"))
+            return;
+        out.println();
+        out.println(SET_TEXT_COLOR_MAGENTA + "You lose!!");
+        game.endGame();
+        if(playerColor == ChessGame.TeamColor.WHITE)
+            game.setWinner(ChessGame.TeamColor.BLACK);
+        else
+            game.setWinner(ChessGame.TeamColor.WHITE);
         //Do Websocket stuff
+
+        out.println(RESET_TEXT);
     }
 
     private void leave() throws ServerException
     {
-
-
+        out.println(RESET_TEXT);
         //Do Websocket stuff
+
+        out.println(RESET_TEXT);
     }
 
     private Collection<ChessPosition> highlightMoves() throws ServerException
     {
-        ChessPosition position;
-        HashSet<ChessPosition> moves = new HashSet<>();
-        return moves;
+        out.println(RESET_TEXT);
+        ChessBoard board = game.getBoard();
+        out.println(SET_TEXT_COLOR_YELLOW + "What is the location of the piece you want to see the valid moves for?");
+        int c = getColumn();
+        int r = getRow();
+        ChessPosition start = new ChessPosition(r, c);
+        ChessPiece piece = board.getPiece(start);
+        while((piece == null) || (piece.getTeamColor() != game.getTeamTurn()))
+        {
+            if(piece == null)
+                out.println(SET_TEXT_COLOR_RED + "There is no piece there");
+            else
+                out.println(SET_TEXT_COLOR_RED + "It's not " + piece.getTeamColor() + "'s turn");
+            out.println(SET_TEXT_COLOR_YELLOW + "What is the location of the piece you want to see the valid moves for?");
+            start = new ChessPosition(getRow(), getColumn());
+            piece = board.getPiece(start);
+        }
+        return highlight(start);
     }
 
-    private Collection<ChessPosition> highlight(ChessPosition position)
+    private Collection<ChessPosition> highlight(ChessPosition position) throws ServerException
     {
-        HashSet<ChessPosition> moves = new HashSet<>();
-        return moves;
+        out.println(RESET_TEXT);
+        HashSet<ChessMove> moves = new HashSet<>(game.validMoves(position));
+        HashSet<ChessPosition> endingPositions = new HashSet<>();
+        for(ChessMove move : moves)
+            endingPositions.add(move.getEndPosition());
+        printBoard(endingPositions);
+        return endingPositions;
     }
 
-    private void printBoard() throws ServerException
+    private void redrawBoard() throws ServerException
+    {
+        printBoard(new HashSet<ChessPosition>());
+    }
+
+    private void printBoard(Collection<ChessPosition> highlights) throws ServerException
     {
         ChessBoard fakeBoard = new ChessBoard();
         fakeBoard.resetBoard();
         out.print(RESET_ALL);
         out.println(SET_BG_COLOR_DARK_GREEN + EMPTY.repeat(10) + SET_BG_COLOR_DARK_GREY);
         if(observer || playerColor == ChessGame.TeamColor.WHITE)
-            printBoardWhite(fakeBoard);
+            printBoardWhite(fakeBoard, highlights);
         else
-            printBoardBlack(fakeBoard);
+            printBoardBlack(fakeBoard, highlights);
         out.print(EMPTY);
         out.println(SET_BG_COLOR_DARK_GREY);
-        out.println();
+        out.println(RESET_TEXT);
         out.println();
     }
 
-    private void printBoardWhite(ChessBoard board)
+    private void printBoardWhite(ChessBoard board, Collection<ChessPosition> highlights)
     {
         for(int r = 8; r > 0; r --)
         {
-            boardHelper(r, board);
+            boardHelper(r, board, highlights);
         }
         out.print(SET_BG_COLOR_DARK_GREEN + SET_TEXT_COLOR_WHITE + EMPTY);
         for(char c = 'a'; c < 'i'; c++)
@@ -296,11 +341,11 @@ public class GameplayClient
         }
     }
 
-    private void printBoardBlack(ChessBoard board)
+    private void printBoardBlack(ChessBoard board, Collection<ChessPosition> highlights)
     {
         for(int r = 1; r < 9; r ++)
         {
-            boardHelper(r, board);
+            boardHelper(r, board, highlights);
         }
         out.print(SET_BG_COLOR_DARK_GREEN + SET_TEXT_COLOR_WHITE + EMPTY);
         for(char c = 'h'; c >= 'a'; c--)
@@ -308,26 +353,26 @@ public class GameplayClient
             out.print(" " + c + " ");
         }
     }
-    private void boardHelper(int r, ChessBoard board)
+    private void boardHelper(int r, ChessBoard board, Collection<ChessPosition> highlights)
     {
         out.print(SET_BG_COLOR_DARK_GREEN + SET_TEXT_COLOR_WHITE + " " + r + " ");
         for(int c = 1; c < 9; c++)
         {
             ChessPosition position = new ChessPosition(r, c);
             if((r + c) % 2 == 0)
-                out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + getPiece(board, position));
+                out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + getPiece(board, position, highlights.contains(position)));
             else
-                out.print(SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLUE + getPiece(board, position));
+                out.print(SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLUE + getPiece(board, position, highlights.contains(position)));
         }
         out.print(SET_BG_COLOR_DARK_GREEN + EMPTY + SET_BG_COLOR_DARK_GREY + "\n");
     }
 
-    private String getPiece(ChessBoard bored, ChessPosition pos)
+    private String getPiece(ChessBoard bored, ChessPosition pos, boolean highlight)
     {
         ChessPiece piece = bored.getPiece(pos);
         if(piece == null)
             return EMPTY;
-        return switch (piece.getPieceType())
+        String pieceString =  switch (piece.getPieceType())
         {
             case PAWN -> (piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)) ? WHITE_PAWN : BLACK_PAWN;
             case BISHOP -> (piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)) ? WHITE_BISHOP : BLACK_BISHOP;
@@ -336,6 +381,9 @@ public class GameplayClient
             case QUEEN -> (piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)) ? WHITE_QUEEN : BLACK_QUEEN;
             case KING -> (piece.getTeamColor().equals(ChessGame.TeamColor.WHITE)) ? WHITE_KING : BLACK_KING;
         };
+        if(highlight)
+            pieceString = SET_BG_COLOR_YELLOW + SET_TEXT_BLINKING + pieceString + RESET_TEXT;
+        return pieceString;
 
     }
 }
