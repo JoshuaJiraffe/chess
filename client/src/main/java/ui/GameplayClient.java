@@ -61,27 +61,6 @@ public class GameplayClient
         }
     }
 
-//    public void run()
-//    {
-//        out.println(ERASE_SCREEN + RESET_TEXT);
-//        out.println(SET_BG_COLOR_DARK_GREY);
-//        out.println(SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + BLACK_PAWN + "Let the game begin!" + BLACK_PAWN);
-//        out.println(RESET_TEXT);
-//        try
-//        {
-//            redrawBoard(game);
-//            boolean quit = false;
-//            while(!quit)
-//            {
-//                String line = scanner.nextLine();
-//                quit = this.eval(line);
-//            }
-//        } catch (Throwable e) {
-//            var msg = e.toString();
-//            out.println(msg);
-//        }
-//        out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_ITALIC + "You lost. Or maybe you won. Who knows?" + RESET_TEXT);
-//    }
 
     public boolean eval(String input) throws ServerException
     {

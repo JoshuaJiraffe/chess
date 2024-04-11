@@ -18,11 +18,6 @@ public class WebSocketSessions
         sessions.get(gameID).put(authToken, session);
     }
 
-    public void removeSessionFromGame(int gameID, String authToken, Session session)
-    {
-        sessions.get(gameID).remove(authToken);
-        session.close();
-    }
 
     public void removeSession(Session session)
     {
