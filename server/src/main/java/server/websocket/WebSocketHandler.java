@@ -44,11 +44,10 @@ public class WebSocketHandler
     public void onMessage(Session session, String str) throws IOException
     {
         UserGameCommand command = new Gson().fromJson(str, UserGameCommand.class);
-        System.out.println("In websockethandler");
         switch (command.getCommandType())
         {
             case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(str, JoinPlayerCommand.class), session);
-            case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(str, JoinObserverCommand.class));
+            case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(str, JoinObserverCommand.class), session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(str, MakeMoveCommand.class));
             case LEAVE -> leaveGame(new Gson().fromJson(str, LeaveCommand.class));
             case RESIGN -> resignGame(new Gson().fromJson(str, ResignCommand.class));
@@ -57,7 +56,6 @@ public class WebSocketHandler
 
     private void joinPlayer(JoinPlayerCommand cmd, Session session) throws IOException
     {
-        System.out.println("In joinPlayer");
         try {
             sessions.addSessionToGame(cmd.getGameID(), cmd.getAuthString(), session);
             GameData gameData = gameService.getGame(cmd.getGameID());
@@ -84,16 +82,19 @@ public class WebSocketHandler
 
     }
 
-    private void joinObserver(JoinObserverCommand cmd) throws IOException
+    private void joinObserver(JoinObserverCommand cmd, Session session) throws IOException
     {
         try {
+            sessions.addSessionToGame(cmd.getGameID(), cmd.getAuthString(), session);
             GameData gameData = gameService.getGame(cmd.getGameID());
+            AuthData authData = gameService.getAuth(cmd.getAuthString());
             String sendMessage = "You have successfully joined the game \'" + gameData.gameName() + "\'";
             sendMessage(cmd.getGameID(), new LoadGameMessage(gameData.game(), sendMessage), cmd.getAuthString());
             String broadMessage = cmd.getUser() + "has joined the game as an observer";
             broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), cmd.getAuthString());
         } catch (DataAccessException ex) {
             sendMessage(cmd.getGameID(), new ErrorMessage("Error " + ex.getMessage()), cmd.getAuthString());
+            sessions.removeSession(session);
         }
     }
 
@@ -101,6 +102,26 @@ public class WebSocketHandler
     {
         try {
             GameData gameData = gameService.getGame(cmd.getGameID());
+            AuthData authData = gameService.getAuth(cmd.getAuthString());
+            String username = authData.username();
+            ChessGame.TeamColor colorPlayer;
+            if(username.equals(gameData.whiteUsername()))
+                colorPlayer = ChessGame.TeamColor.WHITE;
+            else if(username.equals(gameData.blackUsername()))
+                colorPlayer = ChessGame.TeamColor.BLACK;
+            else
+            {
+                sendMessage(cmd.getGameID(), new ErrorMessage("Error, unauthorized"), cmd.getAuthString());
+                return;
+            }
+            ChessGame.TeamColor colorMove = gameData.game().getBoard().getPiece(cmd.getMove().getStartPosition()).getTeamColor();
+            if(colorPlayer != colorMove)
+            {
+                sendMessage(cmd.getGameID(), new ErrorMessage("Error, you can't move other peoples pieces"), cmd.getAuthString());
+                return;
+            }
+
+
             ChessGame updatedGame = gameData.game();
             updatedGame.makeMove(cmd.getMove());
             ChessGame.TeamColor nextTurn = updatedGame.getTeamTurn();
