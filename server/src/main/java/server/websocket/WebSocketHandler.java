@@ -9,6 +9,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import service.GameService;
+import service.UserService;
 import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
@@ -58,19 +59,27 @@ public class WebSocketHandler
     {
         System.out.println("In joinPlayer");
         try {
-            GameData gameData = gameService.getGame(cmd.getGameID());
             sessions.addSessionToGame(cmd.getGameID(), cmd.getAuthString(), session);
-            String sendMessage = "You have successfully joined the game \'" + gameData.gameName() + "\'";
-            sendMessage(cmd.getGameID(), new LoadGameMessage(gameData.game(), sendMessage), cmd.getAuthString());
+            GameData gameData = gameService.getGame(cmd.getGameID());
+            AuthData authData = gameService.getAuth(cmd.getAuthString());
             String username;
             if(cmd.getPlayerColor() == ChessGame.TeamColor.WHITE)
                 username = gameData.whiteUsername();
             else
                 username = gameData.blackUsername();
+            if((username == null) ||!username.equals(authData.username()))
+            {
+                sendMessage(cmd.getGameID(), new ErrorMessage("Error, unauthorized"), cmd.getAuthString());
+                sessions.removeSession(session);
+                return;
+            }
+            String sendMessage = "You have successfully joined the game \'" + gameData.gameName() + "\'";
+            sendMessage(cmd.getGameID(), new LoadGameMessage(gameData.game(), sendMessage), cmd.getAuthString());
             String broadMessage = username + "has joined the game as " + cmd.getPlayerColor().toString().toLowerCase();
             broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), cmd.getAuthString());
         } catch (DataAccessException ex) {
             sendMessage(cmd.getGameID(), new ErrorMessage("Error " + ex.getMessage()), cmd.getAuthString());
+            sessions.removeSession(session);
         }
 
     }
