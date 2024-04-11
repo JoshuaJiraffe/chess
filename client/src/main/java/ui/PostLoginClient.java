@@ -244,7 +244,7 @@ public class PostLoginClient
         out.println(RESET_TEXT);
     }
 
-    public boolean isInteger(String input) {
+    public static boolean isInteger(String input) {
         try {
             Integer.parseInt(input);
             return true;

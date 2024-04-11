@@ -7,11 +7,11 @@ import websocket.WebSocketFacade;
 
 import java.io.PrintStream;
 import java.rmi.ServerException;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.RESET_ALL;
+import static ui.PostLoginClient.isInteger;
 
 public class GameplayClient
 {
@@ -26,6 +26,18 @@ public class GameplayClient
     private final WebSocketFacade ws;
     private final boolean observer;
     private ChessGame game;
+
+    private final Map<Character, Integer> colNum = Map.of(
+            'a', 1,
+            'b', 2,
+            'c', 3,
+            'd', 4,
+            'e', 5,
+            'f', 6,
+            'g', 7,
+            'h', 8
+            );
+
     public GameplayClient(ServerFacade server, String serverURL, AuthData auth, int gameID, ChessGame.TeamColor color, Scanner scanner, PrintStream out) throws ServerException
     {
         this.server = server;
@@ -104,11 +116,113 @@ public class GameplayClient
 
     private void makeMove() throws ServerException
     {
-        ChessMove move;
-        ChessPiece piece;
+        out.println(RESET_TEXT);
+        if(game.getTeamTurn() != playerColor)
+            out.print(SET_TEXT_COLOR_RED + "It's not your turn. Learn some patience");
+        else
+        {
+            ChessBoard board = game.getBoard();
+            out.println(SET_TEXT_COLOR_MAGENTA + "Let's see what tricks you have up your sleeve");
 
 
+//            Get starting location/piece
+            out.println(SET_TEXT_COLOR_YELLOW + "What is the location of the piece you want to move?");
+            int c = getColumn();
+            int r = getRow();
+            ChessPosition start = new ChessPosition(r, c);
+            ChessPiece piece = board.getPiece(start);
+            while((piece == null) || (piece.getTeamColor() != playerColor) || (game.validMoves(start).isEmpty()))
+            {
+                out.println(SET_TEXT_COLOR_RED + "That's not a piece you can move");
+                out.println(SET_TEXT_COLOR_YELLOW + "What is the location of the piece you want to move?");
+                start = new ChessPosition(getRow(), getColumn());
+                piece = board.getPiece(start);
+            }
+            out.println(SET_TEXT_COLOR_MAGENTA + "You have chosen to move your " + piece.getPieceType().toString().toLowerCase() + ". Here are your valid moves");
+
+//            Get ending location
+            HashSet<ChessPosition> endPositions = new HashSet<>(highlight(start));
+            out.println(SET_TEXT_COLOR_YELLOW + "Where do you want to move to?");
+            ChessPosition end = new ChessPosition(getRow(), getColumn());
+            while(!endPositions.contains(end))
+            {
+                out.println(SET_TEXT_COLOR_RED + "That is not a valid move! Cheater");
+                out.println(SET_TEXT_COLOR_YELLOW + "Where do you want to move to?");
+                end = new ChessPosition(getRow(), getColumn());
+            }
+            ChessPiece.PieceType promotion = null;
+            if((piece.getPieceType() == ChessPiece.PieceType.PAWN) && (r == 8 || r == 1))
+                promotion = getPromotionPiece();
+            ChessMove move = new ChessMove(start, end, promotion);
+
+//          Do Websocket stuff
+
+
+        }
+        out.println(RESET_TEXT);
     }
+
+    private boolean isCol(String c)
+    {
+        if(c.length() > 1)
+            return false;
+        return colNum.containsKey(c.charAt(0));
+    }
+
+    private int getColumn()
+    {
+        out.print(SET_TEXT_COLOR_YELLOW + "Column: " + SET_TEXT_COLOR_WHITE);
+        String col = scanner.nextLine().toLowerCase();
+        if(isCol(col))
+            return colNum.get(col.charAt(0));
+        if(isInteger(col))
+        {
+            int c = Integer.parseInt(col);
+            if((c > 0) && (c < 9))
+                return c;
+            out.println(SET_TEXT_COLOR_RED + "That is not a valid column number");
+        }
+        else
+            out.println(SET_TEXT_COLOR_RED + "The column must either be a number or valid letter notation");
+        return getColumn();
+    }
+
+    private int getRow()
+    {
+        out.print(SET_TEXT_COLOR_YELLOW + "Row: " + SET_TEXT_COLOR_WHITE);
+        String row = scanner.nextLine().toLowerCase();
+        if(isInteger(row))
+        {
+            int r = Integer.parseInt(row);
+            if((r > 0) && (r < 9))
+                return r;
+            out.println(SET_TEXT_COLOR_RED + "That is not a valid row number");
+        }
+        else
+            out.println(SET_TEXT_COLOR_RED + "The column must either be a number or valid letter notation");
+        return getRow();
+    }
+
+    private ChessPiece.PieceType getPromotionPiece()
+    {
+        out.println(SET_TEXT_COLOR_YELLOW + "What do you want to promote your pawn to?");
+        out.print("Piece Type: " + SET_TEXT_COLOR_WHITE);
+        String type = scanner.nextLine().toLowerCase();
+        ChessPiece.PieceType newType = switch(type){
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            default -> null;
+        };
+        if(newType == null)
+        {
+            out.println(SET_TEXT_COLOR_RED + "That is not a valid piece. Try again");
+            return getPromotionPiece();
+        }
+        return newType;
+    }
+
 
     private void resign() throws ServerException
     {
@@ -120,9 +234,17 @@ public class GameplayClient
 
     }
 
-    private void highlightMoves() throws ServerException
+    private Collection<ChessPosition> highlightMoves() throws ServerException
     {
         ChessPosition position;
+        HashSet<ChessPosition> moves = new HashSet<>();
+        return moves;
+    }
+
+    private Collection<ChessPosition> highlight(ChessPosition position)
+    {
+        HashSet<ChessPosition> moves = new HashSet<>();
+        return moves;
     }
 
     private void printBoard() throws ServerException
@@ -130,7 +252,6 @@ public class GameplayClient
         ChessBoard fakeBoard = new ChessBoard();
         fakeBoard.resetBoard();
         out.print(RESET_ALL);
-        if(playerColor == ChessGame.TeamColor.WHITE)
         out.println(SET_BG_COLOR_DARK_GREEN + EMPTY.repeat(10) + SET_BG_COLOR_DARK_GREY);
         if(observer || playerColor == ChessGame.TeamColor.WHITE)
             printBoardWhite(fakeBoard);
