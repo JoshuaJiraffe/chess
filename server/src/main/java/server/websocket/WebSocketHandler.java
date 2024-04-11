@@ -49,7 +49,7 @@ public class WebSocketHandler
             case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(str, JoinPlayerCommand.class), session);
             case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(str, JoinObserverCommand.class), session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(str, MakeMoveCommand.class));
-            case LEAVE -> leaveGame(new Gson().fromJson(str, LeaveCommand.class));
+            case LEAVE -> leaveGame(new Gson().fromJson(str, LeaveCommand.class), session);
             case RESIGN -> resignGame(new Gson().fromJson(str, ResignCommand.class));
         }
     }
@@ -103,6 +103,11 @@ public class WebSocketHandler
         try {
             GameData gameData = gameService.getGame(cmd.getGameID());
             AuthData authData = gameService.getAuth(cmd.getAuthString());
+            if(gameData.game().isGameOver())
+            {
+                sendMessage(cmd.getGameID(), new ErrorMessage("Error: game already over. No more moves can be made"), cmd.getAuthString());
+                return;
+            }
             String username = authData.username();
             ChessGame.TeamColor colorPlayer;
             if(username.equals(gameData.whiteUsername()))
@@ -160,7 +165,7 @@ public class WebSocketHandler
 
     }
 
-    private void leaveGame(LeaveCommand cmd) throws IOException
+    private void leaveGame(LeaveCommand cmd, Session session) throws IOException
     {
         try {
             String user = cmd.getUser();
@@ -169,9 +174,9 @@ public class WebSocketHandler
                 gameService.updateGame(cmd.getGameID(), gameData.game(), ChessGame.TeamColor.WHITE);
             else if(gameData.blackUsername().equals(user))
                 gameService.updateGame(cmd.getGameID(), gameData.game(), ChessGame.TeamColor.BLACK);
-
             String broadMessage = user + " has left the game. Coward";
             broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), cmd.getAuthString());
+            sessions.removeSession(session);
         } catch (DataAccessException ex) {
             sendMessage(cmd.getGameID(), new ErrorMessage("Error " + ex.getMessage()), cmd.getAuthString());
         }
@@ -180,14 +185,30 @@ public class WebSocketHandler
     private void resignGame(ResignCommand cmd) throws IOException
     {
         try {
-            String user = cmd.getUser();
             GameData gameData = gameService.getGame(cmd.getGameID());
+            AuthData authData = gameService.getAuth(cmd.getAuthString());
+            String user = authData.username();
             ChessGame game = gameData.game();
-            game.endGame();
+            if(game.isGameOver())
+            {
+                sendMessage(cmd.getGameID(), new ErrorMessage("Error: game already over"), cmd.getAuthString());
+                return;
+            }
             if(gameData.blackUsername().equals(user))
+            {
+                game.endGame();
                 game.setWinner(ChessGame.TeamColor.WHITE);
-            else
+            }
+            else if (gameData.whiteUsername().equals(user))
+            {
+                game.endGame();
                 game.setWinner(ChessGame.TeamColor.BLACK);
+            }
+            else
+            {
+                sendMessage(cmd.getGameID(), new ErrorMessage("Error: you can't resign if you're not playing"), cmd.getAuthString());
+                return;
+            }
             gameService.updateGame(cmd.getGameID(), game, null);
             String broadMessage = user + " has resigned. What a loser. " + game.getWinner().toString().toLowerCase() + " has won!";
             broadcastMessage(gameData.gameID(), new NotificationMessage(broadMessage), null);
