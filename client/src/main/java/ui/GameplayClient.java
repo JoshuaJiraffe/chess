@@ -2,6 +2,8 @@ package ui;
 
 import chess.*;
 import model.AuthData;
+import websocket.GameHandler;
+import websocket.WebSocketFacade;
 
 import java.io.PrintStream;
 import java.rmi.ServerException;
@@ -20,7 +22,11 @@ public class GameplayClient
     private AuthData auth;
     private int gameID;
     private ChessGame.TeamColor playerColor;
-    public GameplayClient(ServerFacade server, String serverURL, AuthData auth, int gameID, ChessGame.TeamColor color, Scanner scanner, PrintStream out)
+    private final GameHandler gameHand;
+    private final WebSocketFacade ws;
+    private final boolean observer;
+    private ChessGame game;
+    public GameplayClient(ServerFacade server, String serverURL, AuthData auth, int gameID, ChessGame.TeamColor color, Scanner scanner, PrintStream out) throws ServerException
     {
         this.server = server;
         this.serverUrl = serverURL;
@@ -29,6 +35,12 @@ public class GameplayClient
         this.playerColor = color;
         this.scanner = scanner;
         this.out = out;
+        this.gameHand = new GameHandler();
+        ws = new WebSocketFacade(serverURL, gameHand);
+        if(color == null)
+            observer = true;
+        else
+            observer = false;
     }
 
     public void run()
@@ -63,7 +75,10 @@ public class GameplayClient
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             switch (cmd) {
                 case "move" -> makeMove();
-                case "quit" -> quitting = true;
+                case "redraw" -> printBoard();
+                case "resign" -> resign();
+                case "leave" -> quitting = true;
+                case "highlight" -> highlightMoves();
                 default -> help();
             };
         } catch (ServerException ex) {
@@ -74,17 +89,25 @@ public class GameplayClient
     public void help()
     {
         out.print(RESET_TEXT);
-        out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_BOLD + "Here's how to play:");
-    }
-
-    private void redrawBoard() throws ServerException
-    {
-
+        out.println(SET_TEXT_COLOR_MAGENTA + SET_TEXT_BOLD + "Here are the available commands:\n" + RESET_TEXT_BOLD_FAINT +
+                SET_TEXT_COLOR_YELLOW + "redraw " + SET_TEXT_COLOR_BLUE + "- see the game board\n" +
+                SET_TEXT_COLOR_YELLOW + "highlight " + SET_TEXT_COLOR_BLUE + "- see all possible moves for a piece\n" +
+                SET_TEXT_COLOR_YELLOW + "help " + SET_TEXT_COLOR_BLUE + "- see available commands\n" +
+                SET_TEXT_COLOR_YELLOW + "leave " + SET_TEXT_COLOR_BLUE + "- stop playing because you're bored"
+        );
+        if(!observer)
+            out.println(SET_TEXT_COLOR_YELLOW + "move " + SET_TEXT_COLOR_BLUE + "- move one of your pieces\n" +
+                    SET_TEXT_COLOR_YELLOW + "resign " + SET_TEXT_COLOR_BLUE + "- announce defeat because you're bad"
+            );
+        out.println(RESET_TEXT);
     }
 
     private void makeMove() throws ServerException
     {
         ChessMove move;
+        ChessPiece piece;
+
+
     }
 
     private void resign() throws ServerException
@@ -92,9 +115,14 @@ public class GameplayClient
 
     }
 
-    private void highlightMoves(ChessPosition position) throws ServerException
+    private void leave() throws ServerException
     {
 
+    }
+
+    private void highlightMoves() throws ServerException
+    {
+        ChessPosition position;
     }
 
     private void printBoard() throws ServerException
@@ -102,49 +130,42 @@ public class GameplayClient
         ChessBoard fakeBoard = new ChessBoard();
         fakeBoard.resetBoard();
         out.print(RESET_ALL);
-
-//        if(playerColor == ChessGame.TeamColor.WHITE)
+        if(playerColor == ChessGame.TeamColor.WHITE)
         out.println(SET_BG_COLOR_DARK_GREEN + EMPTY.repeat(10) + SET_BG_COLOR_DARK_GREY);
+        if(observer || playerColor == ChessGame.TeamColor.WHITE)
+            printBoardWhite(fakeBoard);
+        else
+            printBoardBlack(fakeBoard);
+        out.print(EMPTY);
+        out.println(SET_BG_COLOR_DARK_GREY);
+        out.println();
+        out.println();
+    }
+
+    private void printBoardWhite(ChessBoard board)
+    {
         for(int r = 8; r > 0; r --)
         {
-            boardHelper(r, fakeBoard);
+            boardHelper(r, board);
         }
         out.print(SET_BG_COLOR_DARK_GREEN + SET_TEXT_COLOR_WHITE + EMPTY);
         for(char c = 'a'; c < 'i'; c++)
         {
             out.print(" " + c + " ");
         }
-        out.print(EMPTY);
-        out.println(SET_BG_COLOR_DARK_GREY);
-        out.println();
-        out.println();
+    }
 
-//        else
-        out.println(SET_BG_COLOR_DARK_GREEN + EMPTY.repeat(10) + SET_BG_COLOR_DARK_GREY);
+    private void printBoardBlack(ChessBoard board)
+    {
         for(int r = 1; r < 9; r ++)
         {
-            boardHelper(r, fakeBoard);
+            boardHelper(r, board);
         }
         out.print(SET_BG_COLOR_DARK_GREEN + SET_TEXT_COLOR_WHITE + EMPTY);
         for(char c = 'h'; c >= 'a'; c--)
         {
             out.print(" " + c + " ");
         }
-        out.print(EMPTY);
-        out.println(SET_BG_COLOR_DARK_GREY);
-        out.println();
-
-
-    }
-
-    private void printBoardWhite()
-    {
-
-    }
-
-    private void printBoardBlack()
-    {
-
     }
     private void boardHelper(int r, ChessBoard board)
     {

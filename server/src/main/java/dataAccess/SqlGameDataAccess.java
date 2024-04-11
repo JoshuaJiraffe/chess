@@ -149,6 +149,37 @@ public class SqlGameDataAccess extends SqlDataAccess implements GameDataAccess
         }
     }
 
+    public GameData updateGame(int gameID, ChessGame updatedGame) throws DataAccessException
+    {
+        var updateStatement = "UPDATE game SET jsonGame=?, json=? WHERE gameID=?";
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT json, whiteUsername, blackUsername FROM game WHERE gameID=?";
+            try(var ps = conn.prepareStatement(statement)){
+                ps.setInt(1, gameID);
+                try(var rs = ps.executeQuery())
+                {
+                    if(rs.next())
+                    {
+                        String json = rs.getString("json");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        GameData newGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), updatedGame);
+                        executeUpdate(updateStatement, new Gson().toJson(newGame), new Gson().toJson(updatedGame), gameID);
+                        return newGame;
+                    }
+                    else
+                    {
+                        throw new DataAccessException("Error: bad request", 400);
+                    }
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()), 500);
+        }
+    }
+
+
     @Override
     public int getSize() throws DataAccessException
     {

@@ -37,4 +37,9 @@ public class GameService
         AuthData auth = authAccess.getAuth(authToken);
         return gameAccess.joinGame(auth.username(), playerColor, gameID);
     }
+
+    public GameData updateGame(int gameID, ChessGame updatedGame) throws DataAccessException
+    {
+        return gameAccess.updateGame(gameID, updatedGame);
+    }
 }

@@ -103,4 +103,10 @@ public class MemGameDataAccess implements GameDataAccess
     {
         return games.size();
     }
+
+    @Override
+    public GameData updateGame(int gameID, ChessGame updatedGame) throws DataAccessException
+    {
+        return null;
+    }
 }

@@ -112,7 +112,7 @@ public class ChessGame {
             return !inCheckHelper(movingPiece.getTeamColor(), testBoard);
         }
     }
-    public boolean testHelper(ChessPosition test, ChessPosition start, int homerow, int i, ChessPiece movingPiece, ChessBoard testBoard)
+    private boolean testHelper(ChessPosition test, ChessPosition start, int homerow, int i, ChessPiece movingPiece, ChessBoard testBoard)
     {
         test = new ChessPosition(homerow, i);
         testBoard.addPiece(start, null);
@@ -181,7 +181,7 @@ public class ChessGame {
         return inCheckHelper(teamColor, bored);
     }
 
-    public boolean inCheckHelper(TeamColor teamColor, ChessBoard board)
+    private boolean inCheckHelper(TeamColor teamColor, ChessBoard board)
     {
         ChessPiece piece;
         ChessPosition position;

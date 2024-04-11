@@ -2,26 +2,27 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
+import server.websocket.WebSocketHandler;
 import service.*;
 import spark.*;
 
 import java.util.Map;
 
 public class Server {
-    public static void main(String[] args)
-    {
-        var port = 8080;
-        if (args.length >= 1)
-            port = Integer.parseInt(args[0]);
-        new Server().run(port);
-    }
+//    public static void main(String[] args)
+//    {
+//        var port = 8080;
+//        if (args.length >= 1)
+//            port = Integer.parseInt(args[0]);
+//        new Server().run(port);
+//    }
 
     public Server()
     {
 
     }
 
-    public int run(int desiredPort){
+    public Server run(int desiredPort){
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
@@ -39,6 +40,9 @@ public class Server {
             ClearHandler clearHandler = new ClearHandler(clearService);
             UserHandler userHandler = new UserHandler(userService);
             GameHandler gameHandler = new GameHandler(gameService);
+            WebSocketHandler webSocketHandler = new WebSocketHandler(gameService);
+
+            Spark.webSocket("/connect", webSocketHandler);
 
             // Register your endpoints and handle exceptions here.
             Spark.delete("/db", (req, res) -> (clearHandler).clear(req, res));
@@ -58,7 +62,7 @@ public class Server {
         Spark.exception(DataAccessException.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
-        return Spark.port();
+        return this;
     }
     private void exceptionHandler(DataAccessException e, Request req, Response res )
     {
