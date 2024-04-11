@@ -2,6 +2,8 @@ package websocket;
 
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.UserGameCommand;
+
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
@@ -41,9 +43,14 @@ public class WebSocketFacade extends Endpoint
         }
     }
 
-    public void joinPlayer() throws ServerException
+    public void joinPlayer(String authToken) throws ServerException
     {
-
+        try {
+            var action = new UserGameCommand(authToken);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new ServerException(ex.getMessage());
+        }
     }
     public void joinObserver() throws ServerException
     {
